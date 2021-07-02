@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/UCL-Backend.Service/bin/Debug/net5.0/UCL-Backend.Service.dll",
+            "program": "${workspaceFolder}/UCLBackend.Service/bin/Debug/net5.0/UCLBackend.Service.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/UCL-Backend.Service",
+            "cwd": "${workspaceFolder}/UCLBackend.Service",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
