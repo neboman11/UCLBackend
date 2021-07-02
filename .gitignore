@@ -452,3 +452,6 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Development appsettings (contains sensitive information)
+UCLBackend.Service/appsettings.Development.json
