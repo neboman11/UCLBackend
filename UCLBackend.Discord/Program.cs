@@ -116,7 +116,7 @@ namespace UCLBackend.Discord
             // you want to prefix your commands with.
             // Uncomment the second half if you also want
             // commands to be invoked by mentioning the bot instead.
-            if (msg.HasCharPrefix('!', ref pos) /* || msg.HasMentionPrefix(_client.CurrentUser, ref pos) */)
+            if (msg.HasCharPrefix('!', ref pos) /* || msg.HasMentionPrefix(_client.CurrentPlayer, ref pos) */)
             {
                 // Create a Command Context.
                 var context = new SocketCommandContext(_client, msg);

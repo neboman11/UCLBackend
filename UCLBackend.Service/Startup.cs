@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using UCLBackend.Service.DataAccess.Interfaces;
+using UCLBackend.Service.DataAccess.Repositories;
+using UCLBackend.Service.Interfaces.Services;
+using UCLBackend.Service.Services;
 
 namespace UCLBackend.Service
 {
@@ -41,6 +45,14 @@ namespace UCLBackend.Service
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "UCLBackend.Service", Version = "v1" });
             });
+
+            #region Services
+            services.AddScoped<IPlayerService, PlayerService>();
+            #endregion
+
+            #region Repositories
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

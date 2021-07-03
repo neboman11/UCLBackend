@@ -5,10 +5,10 @@
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-            "name": ".NET Core Launch (console)",
+            "name": ".NET Core Launch (console) Service",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build Service",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/UCLBackend.Service/bin/Debug/net5.0/UCLBackend.Service.dll",
             "args": [],
@@ -21,6 +21,25 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+            "name": ".NET Core Launch (console) Discord",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build Discord",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/UCLBackend.Discord/bin/Debug/net5.0/UCLBackend.Discord.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/UCLBackend.Discord",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "env": {
+                "DISCORD_TOKEN": "ODYwMzU2MTM2NTYxMDE2ODgz.YN6DFw.I8Kqx5QYuQFM5RhXyM8XbGfLB3g"
+            }
         }
     ]
 }
