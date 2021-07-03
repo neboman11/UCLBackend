@@ -6,6 +6,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using UCLBackend.Discord.Services;
+using UCLBackend.Discord.Services.Interfaces;
 
 namespace UCLBackend.Discord
 {
@@ -49,6 +51,9 @@ namespace UCLBackend.Discord
         private static IServiceProvider ConfigureServices()
         {
             var map = new ServiceCollection();
+
+            map.AddScoped<IUCLBackendService, UCLBackendService>();
+
             return map.BuildServiceProvider();
         }
 
