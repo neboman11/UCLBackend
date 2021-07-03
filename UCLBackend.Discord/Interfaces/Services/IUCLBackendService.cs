@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace UCLBackend.Discord.Services.Interfaces
+namespace UCLBackend.Discord.Interfaces.Services
 {
     public interface IUCLBackendService
     {

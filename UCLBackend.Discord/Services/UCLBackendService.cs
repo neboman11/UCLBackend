@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using UCLBackend.Discord.Services.Interfaces;
+using UCLBackend.Discord.Interfaces.Services;
 using UCLBackend.Service.Data.Requests;
 
 namespace UCLBackend.Discord.Services

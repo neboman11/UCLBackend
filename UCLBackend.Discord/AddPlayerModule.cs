@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using UCLBackend.Discord.Services.Interfaces;
+using UCLBackend.Discord.Interfaces.Services;
 
 namespace UCLBackend.Discord
 {

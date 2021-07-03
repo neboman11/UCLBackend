@@ -7,7 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using UCLBackend.Discord.Services;
-using UCLBackend.Discord.Services.Interfaces;
+using UCLBackend.Discord.Interfaces.Services;
 
 namespace UCLBackend.Discord
 {
