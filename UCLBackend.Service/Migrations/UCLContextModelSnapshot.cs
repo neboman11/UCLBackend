@@ -43,8 +43,8 @@ namespace UCLBackend.Service.Migrations
                     b.Property<string>("PlayerID")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("CurrentRank")
-                        .HasColumnType("longtext");
+                    b.Property<int?>("CurrentMMR")
+                        .HasColumnType("int");
 
                     b.Property<string>("DiscordID")
                         .HasColumnType("longtext");
@@ -57,9 +57,6 @@ namespace UCLBackend.Service.Migrations
 
                     b.Property<int?>("PeakMMR")
                         .HasColumnType("int");
-
-                    b.Property<string>("PeakRank")
-                        .HasColumnType("longtext");
 
                     b.Property<double?>("Salary")
                         .HasColumnType("double");

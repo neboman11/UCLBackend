@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -40,12 +42,53 @@ namespace UCLBackend.Service.DataAccess.Repositories
             // Check if the response was successful
             if (response.IsSuccessStatusCode)
             {
-                var player = JsonConvert.DeserializeObject<GetPlayerIDRequest>(await response.Content.ReadAsStringAsync());
+                var player = JsonConvert.DeserializeObject<GetPlayerIDResponse>(await response.Content.ReadAsStringAsync());
                 // Return true if the response was successful
                 return player.Data.MetaData.PlayerID;
             }
 
             throw new Exception("Failed to get player ID");
+        }
+
+        public async Task<List<(int, DateTime)>> RemoteGetPlayerMMRs(string playerID)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            Uri uri = new Uri($"https://api.tracker.gg/api/v1/rocket-league/player-history/mmr/{playerID}");
+
+            // Send the request
+            var response = await client.GetAsync(uri.ToString());
+            // Check if the response was successful
+            if (response.IsSuccessStatusCode)
+            {
+                var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
+                // Return true if the response was successful
+                List<(int, DateTime)> mmrs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
+                mmrs.AddRange(player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList());
+                return mmrs;
+            }
+
+            throw new Exception("Failed to get player history");
+        }
+
+        public void UpdatePlayerPeakMMR(string playerID, int peakMMR)
+        {
+            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
+            if (player != null)
+            {
+                player.PeakMMR = peakMMR;
+                _context.SaveChanges();
+            }
+        }
+
+        public void UpdatePlayerCurrentMMR(string playerID, int mmr)
+        {
+            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
+            if (player != null)
+            {
+                player.CurrentMMR = mmr;
+                _context.SaveChanges();
+            }
         }
     }
 }

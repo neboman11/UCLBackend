@@ -9,7 +9,7 @@ using UCLBackend.Service;
 namespace UCLBackend.Service.Migrations
 {
     [DbContext(typeof(UCLContext))]
-    [Migration("20210703035131_InitialCreate")]
+    [Migration("20210704033138_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,8 +45,8 @@ namespace UCLBackend.Service.Migrations
                     b.Property<string>("PlayerID")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("CurrentRank")
-                        .HasColumnType("longtext");
+                    b.Property<int?>("CurrentMMR")
+                        .HasColumnType("int");
 
                     b.Property<string>("DiscordID")
                         .HasColumnType("longtext");
@@ -59,9 +59,6 @@ namespace UCLBackend.Service.Migrations
 
                     b.Property<int?>("PeakMMR")
                         .HasColumnType("int");
-
-                    b.Property<string>("PeakRank")
-                        .HasColumnType("longtext");
 
                     b.Property<double?>("Salary")
                         .HasColumnType("double");

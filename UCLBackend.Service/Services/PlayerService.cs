@@ -41,6 +41,8 @@ namespace UCLBackend.Service.Services
             {
                 _playerRepository.AddAccount(account);
             }
+
+            await UpdatePeakMMR(playerID);
         }
 
         private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
@@ -49,19 +51,30 @@ namespace UCLBackend.Service.Services
 
             foreach (var rlTrackerLink in rlTrackerLinks)
             {
-                var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
-                var accountName = rlTrackerLink.Split('/').ToList().Last();
-
-                accounts.Add(new Account
+                if (!(rlTrackerLink == "" || rlTrackerLink == null))
                 {
-                    Platform = platform,
-                    AccountID = accountName,
-                    PlayerID = PlayerID,
-                    IsPrimary = false
-                });
+                    var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
+                    var accountName = rlTrackerLink.Split('/').ToList().Last();
+
+                    accounts.Add(new Account
+                    {
+                        Platform = platform,
+                        AccountID = accountName,
+                        PlayerID = PlayerID,
+                        IsPrimary = false
+                    });
+                }
             }
 
             return accounts;
+        }
+
+        private async Task UpdatePeakMMR(string playerID)
+        {
+            var mmrs = await _playerRepository.RemoteGetPlayerMMRs(playerID);
+
+            _playerRepository.UpdatePlayerPeakMMR(playerID, mmrs.Select(x => x.Item1).Max());
+            _playerRepository.UpdatePlayerCurrentMMR(playerID, mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1);
         }
     }
 }

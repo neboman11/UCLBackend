@@ -19,10 +19,6 @@ namespace UCLBackend.Service.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PeakRank = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CurrentRank = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     League = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Team = table.Column<string>(type: "longtext", nullable: true)
@@ -30,6 +26,7 @@ namespace UCLBackend.Service.Migrations
                     TimeZone = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PeakMMR = table.Column<int>(type: "int", nullable: true),
+                    CurrentMMR = table.Column<int>(type: "int", nullable: true),
                     Salary = table.Column<double>(type: "double", nullable: true)
                 },
                 constraints: table =>
