@@ -90,5 +90,15 @@ namespace UCLBackend.Service.DataAccess.Repositories
                 _context.SaveChanges();
             }
         }
+
+        public void UpdatePlayerSalary(string playerID, double salary)
+        {
+            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
+            if (player != null)
+            {
+                player.Salary = salary;
+                _context.SaveChanges();
+            }
+        }
     }
 }

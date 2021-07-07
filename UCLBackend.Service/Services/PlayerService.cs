@@ -42,7 +42,7 @@ namespace UCLBackend.Service.Services
                 _playerRepository.AddAccount(account);
             }
 
-            await UpdatePeakMMR(playerID);
+            await UpdatePlayerMMR(playerID);
         }
 
         private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
@@ -69,12 +69,15 @@ namespace UCLBackend.Service.Services
             return accounts;
         }
 
-        private async Task UpdatePeakMMR(string playerID)
+        private async Task UpdatePlayerMMR(string playerID)
         {
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(playerID);
 
             _playerRepository.UpdatePlayerPeakMMR(playerID, mmrs.Select(x => x.Item1).Max());
             _playerRepository.UpdatePlayerCurrentMMR(playerID, mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1);
+
+            // Salary is PeakMMR rounded to the nearest 50 then divided by 100
+            _playerRepository.UpdatePlayerSalary(playerID, ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0 );
         }
     }
 }

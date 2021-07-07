@@ -13,5 +13,6 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         Task<List<(int, DateTime)>> RemoteGetPlayerMMRs(string playerID);
         void UpdatePlayerPeakMMR(string playerID, int peakMMR);
         void UpdatePlayerCurrentMMR(string playerID, int mmr);
+        void UpdatePlayerSalary(string playerID, double salary);
     }
 }
