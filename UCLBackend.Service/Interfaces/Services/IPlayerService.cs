@@ -6,5 +6,6 @@ namespace UCLBackend.Service.Interfaces.Services
     public interface IPlayerService
     {
         Task AddPlayer(AddPlayerRequest request);
+        Task UpdateAllMMRs();
     }
 }

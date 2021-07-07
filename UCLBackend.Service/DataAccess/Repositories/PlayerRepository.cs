@@ -100,5 +100,10 @@ namespace UCLBackend.Service.DataAccess.Repositories
                 _context.SaveChanges();
             }
         }
+
+        public List<Player> GetAllPlayers()
+        {
+            return _context.Players.ToList();
+        }
     }
 }

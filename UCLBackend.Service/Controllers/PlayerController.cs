@@ -26,8 +26,15 @@ namespace UCLBackend.Service.Controllers
         [Route("AddPlayer")]
         public async Task<IActionResult> AddPlayer([FromBody] AddPlayerRequest player)
         {
-            Console.WriteLine("Adding player: " + player.PlayerName);
             await _playerService.AddPlayer(player);
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("UpdateAllMMRs")]
+        public async Task<IActionResult> UpdateAllMMRs()
+        {
+            await _playerService.UpdateAllMMRs();
             return Ok();
         }
     }

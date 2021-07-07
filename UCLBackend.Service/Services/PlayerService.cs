@@ -45,6 +45,16 @@ namespace UCLBackend.Service.Services
             await UpdatePlayerMMR(playerID);
         }
 
+        public async Task UpdateAllMMRs()
+        {
+            var players = _playerRepository.GetAllPlayers();
+
+            foreach (var player in players)
+            {
+                await UpdatePlayerMMR(player.PlayerID);
+            }
+        }
+
         private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
         {
             var accounts = new List<Account>();
