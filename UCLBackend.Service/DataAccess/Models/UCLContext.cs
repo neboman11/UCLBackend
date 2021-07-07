@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using UCLBackend.DataAccess.Models;
 
-namespace UCLBackend.Service
+namespace UCLBackend.DataAccess.Models
 {
     public class UCLContext : DbContext
     {
@@ -15,8 +14,9 @@ namespace UCLBackend.Service
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Player>().ToTable("Player");
-            modelBuilder.Entity<Account>().ToTable("Account");
+            modelBuilder.Entity<Player>().ToTable("Players");
+            modelBuilder.Entity<Account>().ToTable("Accounts");
+            modelBuilder.Entity<Team>().ToTable("Roster");
         }
     }
 }

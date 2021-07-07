@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UCLBackend.Service;
+using UCLBackend.DataAccess.Models;
 
 namespace UCLBackend.Service.Migrations
 {
@@ -35,7 +35,7 @@ namespace UCLBackend.Service.Migrations
 
                     b.HasIndex("PlayerID");
 
-                    b.ToTable("Account");
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("UCLBackend.DataAccess.Models.Player", b =>
@@ -69,7 +69,50 @@ namespace UCLBackend.Service.Migrations
 
                     b.HasKey("PlayerID");
 
-                    b.ToTable("Player");
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("UCLBackend.DataAccess.Models.Team", b =>
+                {
+                    b.Property<int>("TeamID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<double>("CapSpace")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Conference")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("League")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PlayerAPlayerID")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("PlayerBPlayerID")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("PlayerCPlayerID")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ReservePlayerID")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("TeamName")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("TeamID");
+
+                    b.HasIndex("PlayerAPlayerID");
+
+                    b.HasIndex("PlayerBPlayerID");
+
+                    b.HasIndex("PlayerCPlayerID");
+
+                    b.HasIndex("ReservePlayerID");
+
+                    b.ToTable("Roster");
                 });
 
             modelBuilder.Entity("UCLBackend.DataAccess.Models.Account", b =>
@@ -79,6 +122,33 @@ namespace UCLBackend.Service.Migrations
                         .HasForeignKey("PlayerID");
 
                     b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("UCLBackend.DataAccess.Models.Team", b =>
+                {
+                    b.HasOne("UCLBackend.DataAccess.Models.Player", "PlayerA")
+                        .WithMany()
+                        .HasForeignKey("PlayerAPlayerID");
+
+                    b.HasOne("UCLBackend.DataAccess.Models.Player", "PlayerB")
+                        .WithMany()
+                        .HasForeignKey("PlayerBPlayerID");
+
+                    b.HasOne("UCLBackend.DataAccess.Models.Player", "PlayerC")
+                        .WithMany()
+                        .HasForeignKey("PlayerCPlayerID");
+
+                    b.HasOne("UCLBackend.DataAccess.Models.Player", "Reserve")
+                        .WithMany()
+                        .HasForeignKey("ReservePlayerID");
+
+                    b.Navigation("PlayerA");
+
+                    b.Navigation("PlayerB");
+
+                    b.Navigation("PlayerC");
+
+                    b.Navigation("Reserve");
                 });
 
             modelBuilder.Entity("UCLBackend.DataAccess.Models.Player", b =>
