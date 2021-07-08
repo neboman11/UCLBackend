@@ -51,7 +51,10 @@ namespace UCLBackend.Service.Services
 
             foreach (var player in players)
             {
-                await UpdatePlayerMMR(player.PlayerID);
+                if (player.IsFreeAgent.Value)
+                {
+                    await UpdatePlayerMMR(player.PlayerID);
+                }
             }
         }
 

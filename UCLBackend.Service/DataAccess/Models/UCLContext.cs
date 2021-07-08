@@ -11,12 +11,11 @@ namespace UCLBackend.DataAccess.Models
         
         public DbSet<Player> Players { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Team> Roster { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Player>().ToTable("Players");
-            modelBuilder.Entity<Account>().ToTable("Accounts");
-            modelBuilder.Entity<Team>().ToTable("Roster");
+            modelBuilder.Entity<Player>().Property(p => p.IsFreeAgent).HasDefaultValue(true);
         }
     }
 }

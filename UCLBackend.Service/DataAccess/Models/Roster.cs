@@ -1,5 +1,9 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace UCLBackend.DataAccess.Models
 {
+    [Table("Roster")]
     public class Team
     {
         public int TeamID { get; set; }
@@ -7,11 +11,6 @@ namespace UCLBackend.DataAccess.Models
         public string TeamName { get; set; }
         public string Conference { get; set; }
         public double CapSpace { get; set; }
-        #nullable enable
-        public Player? PlayerA { get; set; }
-        public Player? PlayerB { get; set; }
-        public Player? PlayerC { get; set; }
-        public Player? Reserve { get; set; }
-        #nullable disable
+        List<Player> Players { get; set; }
     }
 }
