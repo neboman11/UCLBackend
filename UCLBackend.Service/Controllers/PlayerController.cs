@@ -56,11 +56,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpGet]
         [Route("SignPlayer")]
-        public IActionResult SignPlayer([FromQuery] string playerID, [FromQuery] int teamID)
+        public IActionResult SignPlayer([FromQuery] string playerID, [FromQuery] string franchiseName, [FromQuery] string league)
         {
             try
             {
-                _playerService.SignPlayer(playerID, teamID);
+                _playerService.SignPlayer(playerID, franchiseName, league);
                 return Ok();
             }
             catch (Exception e)

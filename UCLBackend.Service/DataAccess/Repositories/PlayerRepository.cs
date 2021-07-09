@@ -116,5 +116,10 @@ namespace UCLBackend.Service.DataAccess.Repositories
             _context.Players.Update(player);
             _context.SaveChanges();
         }
+
+        public Team GetTeam(string teamName, string league)
+        {
+            return _context.Roster.FirstOrDefault(x => x.TeamName == teamName && x.League == league);
+        }
     }
 }

@@ -17,5 +17,6 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         List<Player> GetAllPlayers();
         Player GetPlayer(string playerID);
         void UpdatePlayer(Player player);
+        Team GetTeam(string teamName, string league);
     }
 }

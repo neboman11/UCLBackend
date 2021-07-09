@@ -10,6 +10,7 @@ namespace UCLBackend.Service.Services
 {
     public class PlayerService : IPlayerService
     {
+        // TODO: Add service to talk to discord
         private readonly IPlayerRepository _playerRepository;
 
         public PlayerService(IPlayerRepository playerRepository)
@@ -58,10 +59,11 @@ namespace UCLBackend.Service.Services
             }
         }
 
-        public void SignPlayer(string playerID, int teamID)
+        public void SignPlayer(string playerID, string franchiseName, string league)
         {
             var player = _playerRepository.GetPlayer(playerID);
-            player.TeamID = teamID;
+            var team = _playerRepository.GetTeam(franchiseName, league);
+            player.Team = team;
             player.IsFreeAgent = false;
 
             _playerRepository.UpdatePlayer(player);
