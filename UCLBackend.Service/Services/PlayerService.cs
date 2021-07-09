@@ -67,6 +67,16 @@ namespace UCLBackend.Service.Services
             _playerRepository.UpdatePlayer(player);
         }
 
+        public async Task ReleasePlayer(string playerID)
+        {
+            var player = _playerRepository.GetPlayer(playerID);
+            player.IsFreeAgent = true;
+            player.TeamID = -1;
+            _playerRepository.UpdatePlayer(player);
+
+            await UpdatePlayerMMR(playerID);
+        }
+
         #region Private Methods
         private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
         {
@@ -100,6 +110,7 @@ namespace UCLBackend.Service.Services
             _playerRepository.UpdatePlayerCurrentMMR(playerID, mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1);
 
             // Salary is PeakMMR rounded to the nearest 50 then divided by 100
+            // Example: PeakMMR = 1277, Salary = 12.5
             _playerRepository.UpdatePlayerSalary(playerID, ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0 );
         }
         #endregion

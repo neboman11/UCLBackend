@@ -69,5 +69,21 @@ namespace UCLBackend.Service.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet]
+        [Route("ReleasePlayer")]
+        public async Task<IActionResult> ReleasePlayer([FromQuery] string playerID)
+        {
+            try
+            {
+                await _playerService.ReleasePlayer(playerID);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error releasing player");
+                return BadRequest();
+            }
+        }
     }
 }
