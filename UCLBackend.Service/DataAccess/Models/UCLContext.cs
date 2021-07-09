@@ -12,6 +12,7 @@ namespace UCLBackend.DataAccess.Models
         public DbSet<Player> Players { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Team> Roster { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
