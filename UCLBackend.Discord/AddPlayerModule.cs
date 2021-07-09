@@ -29,7 +29,7 @@ namespace UCLBackend.Discord
                     altRLTrackerLinks = "";
                 }
                 await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
-                await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been added to the database.");
+                await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
             }
             catch (Exception e)
             {
@@ -45,7 +45,7 @@ namespace UCLBackend.Discord
             try
             {
                 await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
-                await Context.Channel.SendMessageAsync($"{user.Id} {desiredName} {region} {rlTrackerLink} has been added to the database.");
+                await Context.Channel.SendMessageAsync($"{user.Id} {desiredName} {region} {rlTrackerLink} has been registered as a player.");
             }
             catch (Exception e)
             {
