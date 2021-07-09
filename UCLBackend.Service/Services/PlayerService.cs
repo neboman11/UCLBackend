@@ -58,6 +58,16 @@ namespace UCLBackend.Service.Services
             }
         }
 
+        public void SignPlayer(string playerID, int teamID)
+        {
+            var player = _playerRepository.GetPlayer(playerID);
+            player.TeamID = teamID;
+            player.IsFreeAgent = false;
+
+            _playerRepository.UpdatePlayer(player);
+        }
+
+        #region Private Methods
         private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
         {
             var accounts = new List<Account>();
@@ -92,5 +102,6 @@ namespace UCLBackend.Service.Services
             // Salary is PeakMMR rounded to the nearest 50 then divided by 100
             _playerRepository.UpdatePlayerSalary(playerID, ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0 );
         }
+        #endregion
     }
 }

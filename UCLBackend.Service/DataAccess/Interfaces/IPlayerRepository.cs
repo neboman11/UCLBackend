@@ -15,5 +15,7 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         void UpdatePlayerCurrentMMR(string playerID, int mmr);
         void UpdatePlayerSalary(string playerID, double salary);
         List<Player> GetAllPlayers();
+        Player GetPlayer(string playerID);
+        void UpdatePlayer(Player player);
     }
 }

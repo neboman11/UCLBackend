@@ -105,5 +105,16 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Players.ToList();
         }
+
+        public Player GetPlayer(string playerID)
+        {
+            return _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
+        }
+
+        public void UpdatePlayer(Player player)
+        {
+            _context.Players.Update(player);
+            _context.SaveChanges();
+        }
     }
 }

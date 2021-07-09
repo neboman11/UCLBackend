@@ -7,5 +7,6 @@ namespace UCLBackend.Service.Interfaces.Services
     {
         Task AddPlayer(AddPlayerRequest request);
         Task UpdateAllMMRs();
+        void SignPlayer(string playerID, int teamID);
     }
 }

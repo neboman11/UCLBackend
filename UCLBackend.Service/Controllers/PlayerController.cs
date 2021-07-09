@@ -26,16 +26,48 @@ namespace UCLBackend.Service.Controllers
         [Route("AddPlayer")]
         public async Task<IActionResult> AddPlayer([FromBody] AddPlayerRequest player)
         {
+            try
+            {
             await _playerService.AddPlayer(player);
             return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error adding player");
+                return BadRequest();
+            }
         }
 
         [HttpGet]
         [Route("UpdateAllMMRs")]
         public async Task<IActionResult> UpdateAllMMRs()
         {
+            try
+            {
             await _playerService.UpdateAllMMRs();
             return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error updating all mmr");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("SignPlayer")]
+        public IActionResult SignPlayer([FromQuery] string playerID, [FromQuery] int teamID)
+        {
+            try
+            {
+                _playerService.SignPlayer(playerID, teamID);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error signing player");
+                return BadRequest();
+            }
         }
     }
 }
