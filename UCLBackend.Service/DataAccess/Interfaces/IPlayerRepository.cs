@@ -18,5 +18,7 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         Player GetPlayer(string playerID);
         void UpdatePlayer(Player player);
         Team GetTeam(string teamName, string league);
+        Player GetPlayerUsingDiscordID(string discordID);
+        string GetSetting(string setting);
     }
 }

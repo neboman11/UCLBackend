@@ -121,5 +121,15 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Roster.FirstOrDefault(x => x.TeamName == teamName && x.League == league);
         }
+
+        public Player GetPlayerUsingDiscordID(string discordID)
+        {
+            return _context.Players.FirstOrDefault(x => x.DiscordID == discordID);
+        }
+
+        public string GetSetting(string setting)
+        {
+            return _context.Settings.FirstOrDefault(x => x.Key == setting).Value;
+        }
     }
 }

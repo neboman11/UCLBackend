@@ -56,11 +56,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpGet]
         [Route("SignPlayer")]
-        public IActionResult SignPlayer([FromQuery] string playerID, [FromQuery] string franchiseName, [FromQuery] string league)
+        public IActionResult SignPlayer([FromQuery] string discordID, [FromQuery] string franchiseName, [FromQuery] string league)
         {
             try
             {
-                _playerService.SignPlayer(playerID, franchiseName, league);
+                _playerService.SignPlayer(discordID, franchiseName, league);
                 return Ok();
             }
             catch (Exception e)
@@ -72,16 +72,32 @@ namespace UCLBackend.Service.Controllers
 
         [HttpGet]
         [Route("ReleasePlayer")]
-        public async Task<IActionResult> ReleasePlayer([FromQuery] string playerID)
+        public async Task<IActionResult> ReleasePlayer([FromQuery] string discordID)
         {
             try
             {
-                await _playerService.ReleasePlayer(playerID);
+                await _playerService.ReleasePlayer(discordID);
                 return Ok();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error releasing player");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("PlayerRankout")]
+        public IActionResult PlayerRankout([FromQuery] string discordID)
+        {
+            try
+            {
+                _playerService.PlayerRankout(discordID);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error rankout player");
                 return BadRequest();
             }
         }
