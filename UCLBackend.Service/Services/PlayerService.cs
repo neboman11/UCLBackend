@@ -79,7 +79,7 @@ namespace UCLBackend.Service.Services
             await UpdatePlayerMMR(player.PlayerID);
         }
 
-        public void PlayerRankout(string discordID)
+        public async Task PlayerRankout(string discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
@@ -87,23 +87,42 @@ namespace UCLBackend.Service.Services
             var eliteMinSalary = double.Parse(_playerRepository.GetSetting("League.Elite.MinSalary"));
             var superiorMinSalary = double.Parse(_playerRepository.GetSetting("League.Superior.MinSalary"));
 
-            // TODO: Check if current mmr is above the min salary (not the frozen one)
-            if (player.Salary.Value >= ultraMinSalary - 0.5)
+            // Check if current mmr is above the min salary (not the frozen one)
+            var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
+
+            var peakMMR = mmrs.Select(x => x.Item1).Max();
+            var salary = ((peakMMR / 50) * 50) / 100.0;
+
+            if (salary.Equals(ultraMinSalary - 0.5))
             {
                 player.PeakMMR = (int)(ultraMinSalary * 100);
                 player.Salary = ultraMinSalary;
             }
-            else if (player.Salary.Value.Equals(eliteMinSalary - 0.5))
+            else if (salary > ultraMinSalary - 0.5)
             {
-                
+                player.PeakMMR = peakMMR;
+                player.Salary = salary;
+            }
+            else if (salary.Equals(eliteMinSalary - 0.5))
+            {
                 player.PeakMMR = (int)(eliteMinSalary * 100);
                 player.Salary = eliteMinSalary;
+            }
+            else if (salary > eliteMinSalary - 0.5)
+            {
+                player.PeakMMR = peakMMR;
+                player.Salary = salary;
             }
             else if (player.Salary.Value.Equals(superiorMinSalary - 0.5))
             {
                 
                 player.PeakMMR = (int)(eliteMinSalary * 100);
                 player.Salary = eliteMinSalary;
+            }
+            else if (salary > superiorMinSalary - 0.5)
+            {
+                player.PeakMMR = peakMMR;
+                player.Salary = salary;
             }
 
             _playerRepository.UpdatePlayer(player);

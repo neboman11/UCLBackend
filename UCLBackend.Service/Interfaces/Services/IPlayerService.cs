@@ -9,6 +9,6 @@ namespace UCLBackend.Service.Interfaces.Services
         Task UpdateAllMMRs();
         void SignPlayer(string discordID, string franchiseName, string league);
         Task ReleasePlayer(string discordID);
-        void PlayerRankout(string discordID);
+        Task PlayerRankout(string discordID);
     }
 }
