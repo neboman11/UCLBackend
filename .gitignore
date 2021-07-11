@@ -455,3 +455,6 @@ $RECYCLE.BIN/
 
 # Development appsettings (contains sensitive information)
 UCLBackend.Service/appsettings.Development.json
+
+# Environment variables file
+.env

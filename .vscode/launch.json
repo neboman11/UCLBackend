@@ -37,9 +37,7 @@
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false,
-            "env": {
-                "DISCORD_TOKEN": "ODYwMzU2MTM2NTYxMDE2ODgz.YN6DFw.I8Kqx5QYuQFM5RhXyM8XbGfLB3g"
-            }
+            "envFile": "${workspaceFolder}/UCLBackend.Discord/.env"
         }
     ]
 }
