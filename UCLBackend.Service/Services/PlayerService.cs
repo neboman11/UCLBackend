@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using UCLBackend.Service.Data.Enums;
+using System;
 
 namespace UCLBackend.Service.Services
 {
@@ -66,10 +67,27 @@ namespace UCLBackend.Service.Services
             }
         }
 
-        public void SignPlayer(ulong discordID, string franchiseName, string league)
+        public void SignPlayer(ulong discordID, string franchiseName)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
-            var team = _playerRepository.GetTeam(franchiseName, league);
+
+            if (player == null)
+            {
+                throw new ArgumentException("Player not found");
+            }
+
+            if (!player.IsFreeAgent.Value)
+            {
+                throw new ArgumentException("Player is already signed");
+            }
+
+            var team = _playerRepository.GetTeam(franchiseName, GetPlayerLeague(player.Salary.Value));
+
+            if (team == null)
+            {
+                throw new Exception("Could not find team");
+            }
+
             player.Team = team;
             player.IsFreeAgent = false;
 
@@ -182,7 +200,7 @@ namespace UCLBackend.Service.Services
 
             if (salary < ultraMinSalary)
             {
-                return PlayerLeague.Origin;
+                return PlayerLeague.Origins;
             }
             else if (salary < eliteMinSalary)
             {

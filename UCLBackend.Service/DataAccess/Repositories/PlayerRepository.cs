@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.DataAccess.Interfaces;
 
 namespace UCLBackend.Service.DataAccess.Repositories
@@ -109,9 +110,9 @@ namespace UCLBackend.Service.DataAccess.Repositories
             _context.SaveChanges();
         }
 
-        public Team GetTeam(string teamName, string league)
+        public Team GetTeam(string teamName, PlayerLeague league)
         {
-            return _context.Roster.FirstOrDefault(x => x.TeamName == teamName && x.League == league);
+            return _context.Roster.FirstOrDefault(x => x.TeamName == teamName && x.League == league.ToString());
         }
 
         public Player GetPlayerUsingDiscordID(ulong discordID)

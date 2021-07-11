@@ -28,7 +28,7 @@ namespace UCLBackend.Services.Services
             ulong discordRoleId = 0;
             switch (league)
             {
-                case PlayerLeague.Origin:
+                case PlayerLeague.Origins:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Origin.RoleId"));
                     break;
                 case PlayerLeague.Ultra:

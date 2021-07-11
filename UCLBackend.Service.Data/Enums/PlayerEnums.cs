@@ -2,7 +2,7 @@ namespace UCLBackend.Service.Data.Enums
 {
     public enum PlayerLeague
     {
-        Origin,
+        Origins,
         Ultra,
         Elite,
         Superior

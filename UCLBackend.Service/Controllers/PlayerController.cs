@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using UCLBackend.Data.Requests;
 using UCLBackend.Service.Data.Requests;
 using UCLBackend.Service.Services.Interfaces;
 
@@ -38,7 +39,7 @@ namespace UCLBackend.Service.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("UpdateAllMMRs")]
         public async Task<IActionResult> UpdateAllMMRs()
         {
@@ -54,13 +55,13 @@ namespace UCLBackend.Service.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("SignPlayer")]
-        public IActionResult SignPlayer([FromQuery] ulong discordID, [FromQuery] string franchiseName, [FromQuery] string league)
+        public IActionResult SignPlayer([FromBody] SignPlayerRequest request)
         {
             try
             {
-                _playerService.SignPlayer(discordID, franchiseName, league);
+                _playerService.SignPlayer(request.DiscordID, request.FranchiseName);
                 return Ok();
             }
             catch (Exception e)
@@ -70,7 +71,7 @@ namespace UCLBackend.Service.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("ReleasePlayer")]
         public async Task<IActionResult> ReleasePlayer([FromQuery] ulong discordID)
         {
@@ -86,7 +87,7 @@ namespace UCLBackend.Service.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPut]
         [Route("PlayerRankout")]
         public IActionResult PlayerRankout([FromQuery] ulong discordID)
         {

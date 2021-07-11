@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.Data.Enums;
 
 namespace UCLBackend.Service.DataAccess.Interfaces
 {
@@ -17,7 +18,7 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         List<Player> GetAllPlayers();
         Player GetPlayer(string playerID);
         void UpdatePlayer(Player player);
-        Team GetTeam(string teamName, string league);
+        Team GetTeam(string teamName, PlayerLeague league);
         Player GetPlayerUsingDiscordID(ulong discordID);
     }
 }

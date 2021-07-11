@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UCLBackend.Data.Requests;
 using UCLBackend.Discord.Interfaces.Services;
 using UCLBackend.Service.Data.Requests;
 
@@ -35,6 +36,24 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task SignPlayer(ulong discordID, string franchiseName)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            // Set the request content
+            var content = new SignPlayerRequest
+            {
+                DiscordID = discordID,
+                FranchiseName = franchiseName
+            };
+
+            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+
+            // Send the request
+            var response = await client.PutAsync($"{_backendUrl}/Player/SignPlayer", body);
             response.EnsureSuccessStatusCode();
         }
     }

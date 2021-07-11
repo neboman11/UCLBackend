@@ -71,7 +71,7 @@ namespace UCLBackend.Discord.Modules
                     await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
                     return;
                 }
-                
+
                 await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
                 await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
             }
@@ -87,6 +87,30 @@ namespace UCLBackend.Discord.Modules
         public async Task DJ()
         {
             await Context.Channel.SendMessageAsync($"is better than LightBrightD");
+        }
+
+        [Command("sign")]
+        [Summary("Signs a player to a franchise")]
+        public async Task Sign(IUser user, string franchiseName)
+        {
+            try
+            {
+                // TODO: Determine which roles are needed to sign a player
+                // var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                // if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
+                // {
+                //     await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                //     return;
+                // }
+
+                await _uclBackendService.SignPlayer(user.Id, franchiseName);
+                await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseName}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {user.Username} to {franchiseName}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
         }
     }
 }
