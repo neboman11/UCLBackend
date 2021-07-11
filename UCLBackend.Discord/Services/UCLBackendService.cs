@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,13 @@ namespace UCLBackend.Discord.Services
 {
     public class UCLBackendService : IUCLBackendService
     {
+        private readonly string _backendUrl;
+
+        public UCLBackendService()
+        {
+            _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
+        }
+
         public async Task<bool> AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks)
         {
             // Create a new HTTP client
@@ -26,8 +34,7 @@ namespace UCLBackend.Discord.Services
             var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
 
             // Send the request
-            // TODO: Replace with env var
-            var response = await client.PostAsync("http://localhost:5000/Player/AddPlayer", body);
+            var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
             // Check if the response was successful
             if (response.IsSuccessStatusCode)
             {
