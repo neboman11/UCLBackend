@@ -98,7 +98,7 @@ namespace UCLBackend.Service.Services
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
             player.IsFreeAgent = true;
-            player.TeamID = -1;
+            player.TeamID = null;
             player = await UpdatePlayerMMR(player);
 
             _playerRepository.UpdatePlayer(player);

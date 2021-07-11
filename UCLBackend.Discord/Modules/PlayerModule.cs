@@ -112,5 +112,29 @@ namespace UCLBackend.Discord.Modules
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }
+
+        [Command("release")]
+        [Summary("Releases a player from a franchise")]
+        public async Task Release(IUser user)
+        {
+            try
+            {
+                // TODO: Determine which roles are needed to release a player
+                // var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                // if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
+                // {
+                //     await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                //     return;
+                // }
+
+                await _uclBackendService.ReleasePlayer(user.Id);
+                await Context.Channel.SendMessageAsync($"{user.Username} has been released");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while releasing player {user.Username}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
     }
 }

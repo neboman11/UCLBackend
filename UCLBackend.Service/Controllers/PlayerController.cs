@@ -73,11 +73,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("ReleasePlayer")]
-        public async Task<IActionResult> ReleasePlayer([FromQuery] ulong discordID)
+        public async Task<IActionResult> ReleasePlayer([FromBody] ReleasePlayerRequest request)
         {
             try
             {
-                await _playerService.ReleasePlayer(discordID);
+                await _playerService.ReleasePlayer(request.DiscordID);
                 return Ok();
             }
             catch (Exception e)

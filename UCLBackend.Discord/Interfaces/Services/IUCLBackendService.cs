@@ -6,5 +6,6 @@ namespace UCLBackend.Discord.Interfaces.Services
     {
         Task AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks);
         Task SignPlayer(ulong discordID, string franchiseName);
+        Task ReleasePlayer(ulong discordID);
     }
 }

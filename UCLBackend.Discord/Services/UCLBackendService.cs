@@ -56,5 +56,22 @@ namespace UCLBackend.Discord.Services
             var response = await client.PutAsync($"{_backendUrl}/Player/SignPlayer", body);
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task ReleasePlayer(ulong discordID)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            // Set the request content
+            var content = new ReleasePlayerRequest
+            {
+                DiscordID = discordID
+            };
+
+            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+
+            // Send the request
+            var response = await client.PutAsync($"{_backendUrl}/Player/ReleasePlayer", body);
+            response.EnsureSuccessStatusCode();
+        }
     }
 }
