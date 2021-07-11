@@ -9,10 +9,10 @@ namespace UCLBackend.Discord
 {
     public class AddPlayerModule : ModuleBase<SocketCommandContext>
     {
-        private readonly ILogger<AddPlayerModule> _logger;
+        private readonly ILogger _logger;
         private readonly IUCLBackendService _uclBackendService;
 
-        public AddPlayerModule(ILogger<AddPlayerModule> logger, IUCLBackendService uclBackendService)
+        public AddPlayerModule(ILogger logger, IUCLBackendService uclBackendService)
         {
             _logger = logger;
             _uclBackendService = uclBackendService;
@@ -45,7 +45,7 @@ namespace UCLBackend.Discord
             try
             {
                 await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
-                await Context.Channel.SendMessageAsync($"{user.Id} {desiredName} {region} {rlTrackerLink} has been registered as a player.");
+                await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
             }
             catch (Exception e)
             {

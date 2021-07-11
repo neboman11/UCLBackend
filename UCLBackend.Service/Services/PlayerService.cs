@@ -35,7 +35,7 @@ namespace UCLBackend.Service.Services
 
             _playerRepository.AddPlayer(player);
 
-            var accounts = GetAccounts(request.AltRLTrackerLinks, playerID);
+            var accounts = CreateAccountsList(request.AltRLTrackerLinks, playerID);
             accounts.Add(new Account{Platform = platform, AccountID = accountName, PlayerID = playerID, IsPrimary = true});
 
             foreach (var account in accounts)
@@ -129,24 +129,27 @@ namespace UCLBackend.Service.Services
         }
 
         #region Private Methods
-        private List<Account> GetAccounts(string[] rlTrackerLinks, string PlayerID)
+        private List<Account> CreateAccountsList(string[] rlTrackerLinks, string PlayerID)
         {
             var accounts = new List<Account>();
 
-            foreach (var rlTrackerLink in rlTrackerLinks)
+            if (rlTrackerLinks != null)
             {
-                if (!(rlTrackerLink == "" || rlTrackerLink == null))
+                foreach (var rlTrackerLink in rlTrackerLinks)
                 {
-                    var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
-                    var accountName = rlTrackerLink.Split('/').ToList().Last();
-
-                    accounts.Add(new Account
+                    if (!(rlTrackerLink == "" || rlTrackerLink == null))
                     {
-                        Platform = platform,
-                        AccountID = accountName,
-                        PlayerID = PlayerID,
-                        IsPrimary = false
-                    });
+                        var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
+                        var accountName = rlTrackerLink.Split('/').ToList().Last();
+
+                        accounts.Add(new Account
+                        {
+                            Platform = platform,
+                            AccountID = accountName,
+                            PlayerID = PlayerID,
+                            IsPrimary = false
+                        });
+                    }
                 }
             }
 

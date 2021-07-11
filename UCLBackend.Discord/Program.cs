@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using UCLBackend.Discord.Services;
 using UCLBackend.Discord.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 
 namespace UCLBackend.Discord
 {
@@ -40,7 +41,6 @@ namespace UCLBackend.Discord
 
             // Login and connect.
             await _client.LoginAsync(TokenType.Bot,
-                // < DO NOT HARDCODE YOUR TOKEN >
                 Environment.GetEnvironmentVariable("DISCORD_TOKEN"));
             await _client.StartAsync();
 
@@ -52,6 +52,8 @@ namespace UCLBackend.Discord
         {
             var map = new ServiceCollection();
 
+            map.AddScoped<ILogger, DiscordLogger>();
+
             map.AddScoped<IUCLBackendService, UCLBackendService>();
 
             return map.BuildServiceProvider();
@@ -59,14 +61,8 @@ namespace UCLBackend.Discord
 
         private async Task InitCommands()
         {
-            // Either search the program and add all Module classes that can be found.
-            // Module classes MUST be marked 'public' or they will be ignored.
-            // You also need to pass your 'IServiceProvider' instance now,
-            // so make sure that's done before you get here.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
-            // Note that the first one is 'Modules' (plural) and the second is 'Module' (singular).
 
-            // Subscribe a handler to see if a message invokes a command.
             _client.MessageReceived += HandleCommandAsync;
         }
 
