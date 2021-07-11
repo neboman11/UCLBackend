@@ -14,6 +14,8 @@ namespace UCLBackend.Discord.Modules
         private readonly ILogger _logger;
         private readonly IUCLBackendService _uclBackendService;
         private readonly Dictionary<string, ulong> _roleIds;
+        private readonly List<string> _directorRoles = new List<string> {"DIRECTORS_ROLEID", "MARKETING_DIRECTOR_ROLEID", "ADMISSIONS_DIRECTOR_ROLEID", "STATS_DIRECTOR_ROLEID"};
+        private readonly List<string> _leagueOperatorRoles = new List<string> {"LEAGUE_OPERATOR_ROLEID", "ORIGINS_LEAGUE_OPERATOR_ROLEID", "ULTRA_LEAGUE_OPERATOR_ROLEID", "ELITE_LEAGUE_OPERATOR_ROLEID", "SUPERIOR_LEAGUE_OPERATOR_ROLEID"};
 
         public PlayerModule(ILogger logger, IUCLBackendService uclBackendService)
         {
@@ -95,13 +97,14 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                // TODO: Determine which roles are needed to sign a player
-                // var userRoles = Context.Guild.GetUser(user.Id).Roles;
-                // if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
-                // {
-                //     await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
-                //     return;
-                // }
+                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
 
                 await _uclBackendService.SignPlayer(user.Id, franchiseName);
                 await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseName}");
@@ -119,13 +122,14 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                // TODO: Determine which roles are needed to release a player
-                // var userRoles = Context.Guild.GetUser(user.Id).Roles;
-                // if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
-                // {
-                //     await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
-                //     return;
-                // }
+                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
 
                 await _uclBackendService.ReleasePlayer(user.Id);
                 await Context.Channel.SendMessageAsync($"{user.Username} has been released");
