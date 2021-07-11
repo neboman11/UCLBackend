@@ -39,15 +39,11 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
             // Send the request
             var response = await client.GetAsync(uri.ToString());
-            // Check if the response was successful
-            if (response.IsSuccessStatusCode)
-            {
-                var player = JsonConvert.DeserializeObject<GetPlayerIDResponse>(await response.Content.ReadAsStringAsync());
-                // Return true if the response was successful
-                return player.Data.MetaData.PlayerID;
-            }
+            response.EnsureSuccessStatusCode();
 
-            throw new Exception("Failed to get player ID");
+            var player = JsonConvert.DeserializeObject<GetPlayerIDResponse>(await response.Content.ReadAsStringAsync());
+            
+            return player.Data.MetaData.PlayerID;
         }
 
         public async Task<List<(int, DateTime)>> RemoteGetPlayerMMRs(string playerID)
@@ -58,17 +54,13 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
             // Send the request
             var response = await client.GetAsync(uri.ToString());
-            // Check if the response was successful
-            if (response.IsSuccessStatusCode)
-            {
-                var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
-                // Return true if the response was successful
-                List<(int, DateTime)> mmrs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
-                mmrs.AddRange(player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList());
-                return mmrs;
-            }
+            response.EnsureSuccessStatusCode();
 
-            throw new Exception("Failed to get player history");
+            var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
+            
+            List<(int, DateTime)> mmrs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
+            mmrs.AddRange(player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList());
+            return mmrs;
         }
 
         public void UpdatePlayerPeakMMR(string playerID, int peakMMR)
@@ -122,14 +114,9 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return _context.Roster.FirstOrDefault(x => x.TeamName == teamName && x.League == league);
         }
 
-        public Player GetPlayerUsingDiscordID(string discordID)
+        public Player GetPlayerUsingDiscordID(ulong discordID)
         {
             return _context.Players.FirstOrDefault(x => x.DiscordID == discordID);
-        }
-
-        public string GetSetting(string setting)
-        {
-            return _context.Settings.FirstOrDefault(x => x.Key == setting).Value;
         }
     }
 }

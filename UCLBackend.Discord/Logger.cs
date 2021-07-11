@@ -15,10 +15,8 @@ namespace UCLBackend.Discord
         }
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logLevel == LogLevel.Error)
-            {
-                Console.WriteLine(formatter(state, exception));
-            }
+            Console.WriteLine(formatter(state, exception));
+            Console.WriteLine(exception.StackTrace);
         }
     }
 }

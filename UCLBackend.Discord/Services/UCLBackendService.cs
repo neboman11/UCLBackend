@@ -17,7 +17,7 @@ namespace UCLBackend.Discord.Services
             _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
         }
 
-        public async Task<bool> AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks)
+        public async Task AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks)
         {
             // Create a new HTTP client
             var client = new HttpClient();
@@ -35,14 +35,7 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
-            // Check if the response was successful
-            if (response.IsSuccessStatusCode)
-            {
-                // Return true if the response was successful
-                return true;
-            }
-            // Return false if the response was not successful
-            return false;
+            response.EnsureSuccessStatusCode();
         }
     }
 }

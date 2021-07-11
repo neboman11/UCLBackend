@@ -7,7 +7,7 @@ namespace UCLBackend.DataAccess.Models
     public class Player
     {
         public string PlayerID { get; set; }
-        public string DiscordID { get; set; }
+        public ulong DiscordID { get; set; }
         public string Name { get; set; }
         public int? TeamID { get; set; }
         #nullable enable

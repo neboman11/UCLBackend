@@ -1,21 +1,25 @@
 using UCLBackend.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
-using UCLBackend.Service.Interfaces.Services;
+using UCLBackend.Service.Services.Interfaces;
 using UCLBackend.Service.Data.Requests;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using UCLBackend.Service.Data.Enums;
 
 namespace UCLBackend.Service.Services
 {
     public class PlayerService : IPlayerService
     {
-        // TODO: Add service to talk to discord
         private readonly IPlayerRepository _playerRepository;
+        private readonly ISettingRepository _settingRepository;
+        private readonly IDiscordService _discordService;
 
-        public PlayerService(IPlayerRepository playerRepository)
+        public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService)
         {
             _playerRepository = playerRepository;
+            _settingRepository = settingRepository;
+            _discordService = discordService;
         }
 
         public async Task AddPlayer(AddPlayerRequest request)
@@ -28,22 +32,25 @@ namespace UCLBackend.Service.Services
 
             Player player = new Player
             {
-                DiscordID = request.DiscordID.ToString(),
+                DiscordID = request.DiscordID,
                 Name = request.PlayerName,
                 PlayerID = playerID
             };
 
-            _playerRepository.AddPlayer(player);
-
             var accounts = CreateAccountsList(request.AltRLTrackerLinks, playerID);
             accounts.Add(new Account{Platform = platform, AccountID = accountName, PlayerID = playerID, IsPrimary = true});
+
+            player = await UpdatePlayerMMR(player);
+
+            await _discordService.AddLeagueRolesToUser(player.DiscordID, GetPlayerLeague(player.Salary.Value));
+
+            // Save the player to the database last in case something goes wrong
+            _playerRepository.AddPlayer(player);
 
             foreach (var account in accounts)
             {
                 _playerRepository.AddAccount(account);
             }
-
-            await UpdatePlayerMMR(playerID);
         }
 
         public async Task UpdateAllMMRs()
@@ -54,12 +61,12 @@ namespace UCLBackend.Service.Services
             {
                 if (player.IsFreeAgent.Value)
                 {
-                    await UpdatePlayerMMR(player.PlayerID);
+                    await UpdatePlayerMMR(player);
                 }
             }
         }
 
-        public void SignPlayer(string discordID, string franchiseName, string league)
+        public void SignPlayer(ulong discordID, string franchiseName, string league)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
             var team = _playerRepository.GetTeam(franchiseName, league);
@@ -69,23 +76,23 @@ namespace UCLBackend.Service.Services
             _playerRepository.UpdatePlayer(player);
         }
 
-        public async Task ReleasePlayer(string discordID)
+        public async Task ReleasePlayer(ulong discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
             player.IsFreeAgent = true;
             player.TeamID = -1;
-            _playerRepository.UpdatePlayer(player);
+            player = await UpdatePlayerMMR(player);
 
-            await UpdatePlayerMMR(player.PlayerID);
+            _playerRepository.UpdatePlayer(player);
         }
 
-        public async Task PlayerRankout(string discordID)
+        public async Task PlayerRankout(ulong discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
-            var ultraMinSalary = double.Parse(_playerRepository.GetSetting("League.Ultra.MinSalary"));
-            var eliteMinSalary = double.Parse(_playerRepository.GetSetting("League.Elite.MinSalary"));
-            var superiorMinSalary = double.Parse(_playerRepository.GetSetting("League.Superior.MinSalary"));
+            var ultraMinSalary = double.Parse(_settingRepository.GetSetting("League.Ultra.MinSalary"));
+            var eliteMinSalary = double.Parse(_settingRepository.GetSetting("League.Elite.MinSalary"));
+            var superiorMinSalary = double.Parse(_settingRepository.GetSetting("League.Superior.MinSalary"));
 
             // Check if current mmr is above the min salary (not the frozen one)
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
@@ -156,16 +163,39 @@ namespace UCLBackend.Service.Services
             return accounts;
         }
 
-        private async Task UpdatePlayerMMR(string playerID)
+        private async Task<Player> UpdatePlayerMMR(Player player)
         {
-            var mmrs = await _playerRepository.RemoteGetPlayerMMRs(playerID);
+            var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
 
-            _playerRepository.UpdatePlayerPeakMMR(playerID, mmrs.Select(x => x.Item1).Max());
-            _playerRepository.UpdatePlayerCurrentMMR(playerID, mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1);
+            player.PeakMMR = mmrs.Select(x => x.Item1).Max();
+            player.CurrentMMR = mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1;
+            player.Salary = ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0;
 
-            // Salary is PeakMMR rounded to the nearest 50 then divided by 100
-            // Example: PeakMMR = 1277, Salary = 12.5
-            _playerRepository.UpdatePlayerSalary(playerID, ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0 );
+            return player;
+        }
+
+        private PlayerLeague GetPlayerLeague(double salary)
+        {
+            var ultraMinSalary = double.Parse(_settingRepository.GetSetting("League.Ultra.MinSalary"));
+            var eliteMinSalary = double.Parse(_settingRepository.GetSetting("League.Elite.MinSalary"));
+            var superiorMinSalary = double.Parse(_settingRepository.GetSetting("League.Superior.MinSalary"));
+
+            if (salary < ultraMinSalary)
+            {
+                return PlayerLeague.Origin;
+            }
+            else if (salary < eliteMinSalary)
+            {
+                return PlayerLeague.Ultra;
+            }
+            else if (salary < superiorMinSalary)
+            {
+                return PlayerLeague.Elite;
+            }
+            else
+            {
+                return PlayerLeague.Superior;
+            }
         }
         #endregion
     }

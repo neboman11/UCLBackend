@@ -14,8 +14,10 @@ using Microsoft.OpenApi.Models;
 using UCLBackend.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.DataAccess.Repositories;
-using UCLBackend.Service.Interfaces.Services;
+using UCLBackend.Service.Services.Interfaces;
 using UCLBackend.Service.Services;
+using UCLBackend.Services.Services;
+using UCLBBackend.DataAccess.Repositories;
 
 namespace UCLBackend.Service
 {
@@ -49,10 +51,12 @@ namespace UCLBackend.Service
 
             #region Services
             services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<IDiscordService, DiscordService>();
             #endregion
 
             #region Repositories
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
             #endregion
         }
 
