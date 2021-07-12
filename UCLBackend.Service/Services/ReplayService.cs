@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Discord.Requests;
+using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.Models.Responses;
@@ -23,12 +24,14 @@ namespace UCLBackend.Service.Services
         private readonly string _ballchasingApiKey;
         private readonly IRedisService _redisService;
         private readonly IReplayRepository _replayRepository;
+        private readonly ISettingRepository _settingRepository;
 
-        public ReplayService(IRedisService redisService, IReplayRepository replayRepository, IConfiguration configuration)
+        public ReplayService(IRedisService redisService, IReplayRepository replayRepository, IConfiguration configuration, ISettingRepository settingRepository)
         {
             _redisService = redisService;
             _replayRepository = replayRepository;
             _ballchasingApiKey = configuration.GetSection("Ballchasing").GetValue<string>("ApiKey");
+            _settingRepository = settingRepository;
         }
 
         public void BeginUploadProcess(ulong userId)
@@ -55,7 +58,8 @@ namespace UCLBackend.Service.Services
             var urlsKey = _redisService.RetrieveValue($"upload_{userId}");
             var urls = _redisService.RetrieveValue(urlsKey);
 
-            var groupId = await CreateBallchasingGroup($"UCL-{DateTime.Now.ToString(CultureInfo.InvariantCulture)}");
+            // TODO: Figure out how to get league
+            var groupId = await CreateBallchasingGroup($"UCL-{DateTime.Now.ToString(CultureInfo.InvariantCulture)}", PlayerLeague.Origins);
 
             // Split urls then post them to ballchasing.com
             var urlsArray = urls.Split(',');
@@ -95,8 +99,7 @@ namespace UCLBackend.Service.Services
             response.EnsureSuccessStatusCode();
         }
 
-        // TODO: Place group under correct parent
-        private async Task<string> CreateBallchasingGroup(string groupName)
+        private async Task<string> CreateBallchasingGroup(string groupName, PlayerLeague league)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
@@ -110,8 +113,25 @@ namespace UCLBackend.Service.Services
 
             var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
 
+            string parentGroup = "";
+            switch (league)
+            {
+                case PlayerLeague.Origins:
+                    parentGroup = _settingRepository.GetSetting("Ballchasing.Origins.Group");
+                    break;
+                case PlayerLeague.Ultra:
+                    parentGroup = _settingRepository.GetSetting("Ballchasing.Ultra.Group");
+                    break;
+                case PlayerLeague.Elite:
+                    parentGroup = _settingRepository.GetSetting("Ballchasing.Elite.Group");
+                    break;
+                case PlayerLeague.Superior:
+                    parentGroup = _settingRepository.GetSetting("Ballchasing.Superior.Group");
+                    break;
+            }
+
             // Send the request
-            var response = await client.PostAsync("https://ballchasing.com/api/groups", body);
+            var response = await client.PostAsync($"https://ballchasing.com/api/groups?parent={parentGroup}", body);
             response.EnsureSuccessStatusCode();
             return JsonConvert.DeserializeObject<CreateBallchasingGroupResponse>(await response.Content.ReadAsStringAsync()).Id;
         }

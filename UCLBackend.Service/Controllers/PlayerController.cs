@@ -56,11 +56,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("SignPlayer")]
-        public IActionResult SignPlayer([FromBody] SignPlayerRequest request)
+        public async Task<IActionResult> SignPlayer([FromBody] SignPlayerRequest request)
         {
             try
             {
-                _playerService.SignPlayer(request.DiscordID, request.FranchiseName);
+                await _playerService.SignPlayer(request.DiscordID, request.FranchiseName);
                 return Ok();
             }
             catch (Exception e)
@@ -88,11 +88,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("PlayerRankout")]
-        public IActionResult PlayerRankout([FromQuery] ulong discordID)
+        public async Task<IActionResult> PlayerRankout([FromQuery] ulong discordID)
         {
             try
             {
-                _playerService.PlayerRankout(discordID);
+                await _playerService.PlayerRankout(discordID);
                 return Ok();
             }
             catch (Exception e)

@@ -7,5 +7,7 @@ namespace UCLBackend.Service.Services.Interfaces
     {
         Task AddLeagueRolesToUser(ulong discordId, PlayerLeague league);
         Task AddFranchiseRolesToUser(ulong discordId, PlayerFranchise franchise);
+        Task SetFreeAgentNickname(ulong discordId, string nickname);
+        Task SetFranchiseNickname(ulong discordId, PlayerFranchise franchise, string nickname);
     }
 }

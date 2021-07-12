@@ -46,6 +46,7 @@ namespace UCLBackend.Service.Services
 
             await _discordService.AddLeagueRolesToUser(player.DiscordID, GetPlayerLeague(player.Salary.Value));
             await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null));
+            await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
             // Save the player to the database last in case something goes wrong
             _playerRepository.AddPlayer(player);
@@ -58,7 +59,7 @@ namespace UCLBackend.Service.Services
 
         public async Task UpdateAllMMRs()
         {
-            // TODO: Update league roles
+            // TODO: Update league roles for free agents
             var players = _playerRepository.GetAllPlayers();
 
             foreach (var player in players)
@@ -70,7 +71,7 @@ namespace UCLBackend.Service.Services
             }
         }
 
-        public void SignPlayer(ulong discordID, string franchiseName)
+        public async Task SignPlayer(ulong discordID, string franchiseName)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
@@ -94,7 +95,8 @@ namespace UCLBackend.Service.Services
             player.Team = team;
             player.IsFreeAgent = false;
 
-            _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(player.Team));
+            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(player.Team));
+            await _discordService.SetFranchiseNickname(player.DiscordID, GetPlayerFranchise(player.Team), player.Name);
 
             _playerRepository.UpdatePlayer(player);
         }
@@ -105,6 +107,12 @@ namespace UCLBackend.Service.Services
             player.IsFreeAgent = true;
             player.TeamID = null;
             player = await UpdatePlayerMMR(player);
+
+            // TODO: Remove league roles
+            // _discordService.RemoveFranchiseRolesFromUser(player.DiscordID);
+            // TODO: Add free agent roles
+            // _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null));
+            await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
             _playerRepository.UpdatePlayer(player);
         }

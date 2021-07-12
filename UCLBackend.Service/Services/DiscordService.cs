@@ -5,6 +5,7 @@ using UCLBackend.Service.Services.Interfaces;
 using UCLBackend.Service.DataAccess.Interfaces;
 using System.Net.Http;
 using System;
+using System.Text;
 
 namespace UCLBackend.Services.Services
 {
@@ -111,5 +112,33 @@ namespace UCLBackend.Services.Services
             var response = await client.PutAsync(uri.ToString(), null);
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task SetFreeAgentNickname(ulong discordId, string nickname)
+        {
+            var discordNickname = $"FA | {nickname}";
+
+            await ChangeUserNickname(discordId, discordNickname);
+        }
+
+        public async Task SetFranchiseNickname(ulong discordId, PlayerFranchise franchise, string nickname)
+        {
+            var discordNickname = $"{franchise.ToString().ToUpper().Substring(0, 3)} | {nickname}";
+
+            await ChangeUserNickname(discordId, discordNickname);
+        }
+
+        #region Private Methods
+        private async Task ChangeUserNickname(ulong discordId, string nickname)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
+
+            // Send the request
+            var response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+        }
+        #endregion
     }
 }
