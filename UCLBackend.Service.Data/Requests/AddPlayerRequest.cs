@@ -2,9 +2,8 @@ using System;
 
 namespace UCLBackend.Service.Data.Requests
 {
-    public class AddPlayerRequest
+    public class AddPlayerRequest : BaseRequest
     {
-        public ulong DiscordID { get; set; }
         public string PlayerName { get; set; }
         public string Platform { get; set; }
         public string Region { get; set; }

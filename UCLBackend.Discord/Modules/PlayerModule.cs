@@ -12,15 +12,15 @@ namespace UCLBackend.Discord.Modules
     public class PlayerModule : ModuleBase<SocketCommandContext>
     {
         private readonly ILogger _logger;
-        private readonly IUCLBackendService _uclBackendService;
+        private readonly IPlayerService _playerService;
         private readonly Dictionary<string, ulong> _roleIds;
         private readonly List<string> _directorRoles = new List<string> {"DIRECTORS_ROLEID", "MARKETING_DIRECTOR_ROLEID", "ADMISSIONS_DIRECTOR_ROLEID", "STATS_DIRECTOR_ROLEID"};
         private readonly List<string> _leagueOperatorRoles = new List<string> {"LEAGUE_OPERATOR_ROLEID", "ORIGINS_LEAGUE_OPERATOR_ROLEID", "ULTRA_LEAGUE_OPERATOR_ROLEID", "ELITE_LEAGUE_OPERATOR_ROLEID", "SUPERIOR_LEAGUE_OPERATOR_ROLEID"};
 
-        public PlayerModule(ILogger logger, IUCLBackendService uclBackendService)
+        public PlayerModule(ILogger logger, IPlayerService playerService)
         {
             _logger = logger;
-            _uclBackendService = uclBackendService;
+            _playerService = playerService;
 
             _roleIds = new Dictionary<string, ulong>();
             _roleIds.Add("ADMISSIONS_AGENT_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("ADMISSIONS_AGENT_ROLEID")));
@@ -50,7 +50,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
+                await _playerService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
                 await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
             }
             catch (Exception e)
@@ -74,7 +74,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _uclBackendService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
+                await _playerService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
                 await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
             }
             catch (Exception e)
@@ -106,7 +106,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _uclBackendService.SignPlayer(user.Id, franchiseName);
+                await _playerService.SignPlayer(user.Id, franchiseName);
                 await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseName}");
             }
             catch (Exception e)
@@ -131,7 +131,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _uclBackendService.ReleasePlayer(user.Id);
+                await _playerService.ReleasePlayer(user.Id);
                 await Context.Channel.SendMessageAsync($"{user.Username} has been released");
             }
             catch (Exception e)

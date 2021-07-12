@@ -3,74 +3,71 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using UCLBackend.Data.Requests;
 using UCLBackend.Discord.Interfaces.Services;
 using UCLBackend.Service.Data.Requests;
 
+// TODO: Change to usings for all HttpClients and responses (in UCLBackend.Service as well)
+
 namespace UCLBackend.Discord.Services
 {
-    public class UCLBackendService : IUCLBackendService
+    public class ReplayService : IReplayService
     {
         private readonly string _backendUrl;
 
-        public UCLBackendService()
+        public ReplayService()
         {
             _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
         }
 
-        public async Task AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks)
+        public async Task BeginUploadProcess(ulong userId)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
-            var content = new AddPlayerRequest
+            var content = new BaseRequest
             {
-                DiscordID = discordID,
-                PlayerName = playername,
-                Region = region,
-                RLTrackerLink = rlTrackerLink,
-                AltRLTrackerLinks = altRLTrackerLinks
+                DiscordID = userId
             };
 
             var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
 
             // Send the request
-            var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
+            var response = await client.PutAsync($"{_backendUrl}/Replay/BeginUpload", body);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task SignPlayer(ulong discordID, string franchiseName)
+        public async Task QueueReplay(ulong userId, string replayFileUrl)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
-            var content = new SignPlayerRequest
+            var content = new QueueReplayRequest
             {
-                DiscordID = discordID,
-                FranchiseName = franchiseName
+                DiscordID = userId,
+                ReplayFileUrl = replayFileUrl
             };
 
             var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
 
             // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Player/SignPlayer", body);
+            var response = await client.PutAsync($"{_backendUrl}/Replay/QueueReplay", body);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task ReleasePlayer(ulong discordID)
+        public async Task EndUploadProcess(ulong userId)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
-            var content = new ReleasePlayerRequest
+            var content = new BaseRequest
             {
-                DiscordID = discordID
+                DiscordID = userId
             };
 
             var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
 
             // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Player/ReleasePlayer", body);
+            var response = await client.PutAsync($"{_backendUrl}/Replay/EndUpload", body);
             response.EnsureSuccessStatusCode();
         }
     }

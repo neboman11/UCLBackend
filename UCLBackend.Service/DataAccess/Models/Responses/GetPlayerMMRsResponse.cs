@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UCLBackend.DataAccess.Models
+namespace UCLBackend.DataAccess.Models.Responses
 {
     public class GetPlayerMMRsResponse
     {

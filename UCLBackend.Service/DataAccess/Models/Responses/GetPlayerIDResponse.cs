@@ -1,4 +1,4 @@
-namespace UCLBackend.DataAccess.Models
+namespace UCLBackend.DataAccess.Models.Responses
 {
     public class GetPlayerIDResponse
     {

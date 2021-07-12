@@ -52,9 +52,11 @@ namespace UCLBackend.Discord
         {
             var map = new ServiceCollection();
 
+            #region Services
             map.AddScoped<ILogger, DiscordLogger>();
-
-            map.AddScoped<IUCLBackendService, UCLBackendService>();
+            map.AddScoped<IPlayerService, PlayerService>();
+            map.AddScoped<IReplayService, ReplayService>();
+            #endregion
 
             return map.BuildServiceProvider();
         }

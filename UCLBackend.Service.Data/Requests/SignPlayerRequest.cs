@@ -1,8 +1,7 @@
-namespace UCLBackend.Data.Requests
+namespace UCLBackend.Service.Data.Requests
 {
-    public class SignPlayerRequest
+    public class SignPlayerRequest : BaseRequest
     {
-        public ulong DiscordID { get; set; }
         public string FranchiseName { get; set; }
     }
 }

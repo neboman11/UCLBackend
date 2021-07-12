@@ -50,8 +50,11 @@ namespace UCLBackend.Service
             });
 
             #region Services
+            services.AddSingleton<IRedisService, RedisService>();
+
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IDiscordService, DiscordService>();
+            services.AddScoped<IReplayService, ReplayService>();
             #endregion
 
             #region Repositories

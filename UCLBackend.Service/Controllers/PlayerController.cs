@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using UCLBackend.Data.Requests;
 using UCLBackend.Service.Data.Requests;
 using UCLBackend.Service.Services.Interfaces;
 
@@ -73,7 +72,7 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("ReleasePlayer")]
-        public async Task<IActionResult> ReleasePlayer([FromBody] ReleasePlayerRequest request)
+        public async Task<IActionResult> ReleasePlayer([FromBody] BaseRequest request)
         {
             try
             {
