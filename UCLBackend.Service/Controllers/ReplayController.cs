@@ -56,11 +56,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("EndUpload")]
-        public IActionResult EndUpload([FromBody] BaseRequest request)
+        public async Task<IActionResult> EndUpload([FromBody] BaseRequest request)
         {
             try
             {
-                _replayService.EndUploadProcess(request.DiscordID);
+                await _replayService.EndUploadProcess(request.DiscordID);
                 return Ok();
             }
             catch (Exception e)

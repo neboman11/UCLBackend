@@ -8,6 +8,8 @@ using System;
 
 namespace UCLBackend.Services.Services
 {
+    // TODO: While adding user to database, set their nickame to FA | <given username>
+    // TODO: When signed to a team, replace FA with team abbr
     public class DiscordService : IDiscordService
     {
         private string _discordUrl;
@@ -52,9 +54,11 @@ namespace UCLBackend.Services.Services
             response.EnsureSuccessStatusCode();
         }
 
+        // TODO: Add League specific free agent roles
+        // TODO: Remove Free Agent role from user when they sign to a team
         public async Task AddFranchiseRolesToUser(ulong discordId, PlayerFranchise franchise)
         {
-            ulong discordRoleId = 860638221892976653;
+            ulong discordRoleId = 0;
             switch (franchise)
             {
                 case PlayerFranchise.Astros:

@@ -1,5 +1,5 @@
 using System.Linq;
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
 
 namespace UCLBBackend.DataAccess.Repositories

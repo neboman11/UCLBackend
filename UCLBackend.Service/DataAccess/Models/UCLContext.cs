@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace UCLBackend.DataAccess.Models
+namespace UCLBackend.Service.DataAccess.Models
 {
     public class UCLContext : DbContext
     {
@@ -13,6 +13,7 @@ namespace UCLBackend.DataAccess.Models
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Team> Roster { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<Standing> Standings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

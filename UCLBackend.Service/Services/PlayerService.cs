@@ -1,4 +1,4 @@
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.Services.Interfaces;
 using UCLBackend.Service.Data.Requests;

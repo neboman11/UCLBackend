@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 
 namespace UCLBackend.Service.Migrations
 {

@@ -6,7 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Discord.Requests;
+using UCLBackend.Service.DataAccess.Interfaces;
+using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.Models.Responses;
 using UCLBackend.Service.Services.Interfaces;
 
@@ -17,10 +20,12 @@ namespace UCLBackend.Service.Services
     public class ReplayService : IReplayService
     {
         private readonly IRedisService _redisService;
+        private readonly IReplayRepository _replayRepository;
 
-        public ReplayService(IRedisService redisService)
+        public ReplayService(IRedisService redisService, IReplayRepository replayRepository)
         {
             _redisService = redisService;
+            _replayRepository = replayRepository;
         }
 
         public void BeginUploadProcess(ulong userId)
@@ -64,6 +69,9 @@ namespace UCLBackend.Service.Services
                 await SendFileToBallchasing(await response.Content.ReadAsByteArrayAsync(), url.Split('/').Last(), groupId);
             }
 
+            var stats = await FetchGroupStats(groupId);
+            StoreGroupPlayerStandings(stats);
+
             // Delete the key
             _redisService.RemoveValue($"upload_{userId}");
             _redisService.RemoveValue($"replay_{userId}");
@@ -73,6 +81,7 @@ namespace UCLBackend.Service.Services
         private async Task SendFileToBallchasing(byte[] file, string fileName, string groupId)
         {
             var client = new HttpClient();
+            // TODO: Put key in appsettings
             client.DefaultRequestHeaders.Add("Authorization", "Z8ucsdFkmM0dHa7eovEosSSm5c3gpHY5LPd4kypf");
 
             var content = new MultipartFormDataContent("----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
@@ -84,6 +93,7 @@ namespace UCLBackend.Service.Services
             response.EnsureSuccessStatusCode();
         }
 
+        // TODO: Create UCL and League groups
         private async Task<string> CreateBallchasingGroup(string groupName)
         {
             var client = new HttpClient();
@@ -102,6 +112,36 @@ namespace UCLBackend.Service.Services
             var response = await client.PostAsync("https://ballchasing.com/api/groups", body);
             response.EnsureSuccessStatusCode();
             return JsonConvert.DeserializeObject<CreateBallchasingGroupResponse>(await response.Content.ReadAsStringAsync()).Id;
+        }
+
+        private async Task<GetBallchasingGroupResponse> FetchGroupStats(string groupId)
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", "Z8ucsdFkmM0dHa7eovEosSSm5c3gpHY5LPd4kypf");
+
+            var response = await client.GetAsync($"https://ballchasing.com/api/groups/{groupId}");
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<GetBallchasingGroupResponse>(await response.Content.ReadAsStringAsync());
+        }
+
+        private void StoreGroupPlayerStandings(GetBallchasingGroupResponse groupStats)
+        {
+            foreach (var groupPlayer in groupStats.Players)
+            {
+                var player = _replayRepository.GetPlayerByAccount(groupPlayer.Platform, groupPlayer.Id);
+                var standing = new Standing
+                {
+                    Goals = groupPlayer.Cumulative.Core.Goals,
+                    Assists = groupPlayer.Cumulative.Core.Assists,
+                    Saves = groupPlayer.Cumulative.Core.Saves,
+                    Score = groupPlayer.Cumulative.Core.Score,
+                    Shots = groupPlayer.Cumulative.Core.Shots,
+                    Player = player
+                };
+
+                _replayRepository.StoreGroupPlayerStanding(standing);
+            }
         }
         #endregion
     }

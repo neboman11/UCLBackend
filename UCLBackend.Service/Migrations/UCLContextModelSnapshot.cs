@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 
 namespace UCLBackend.Service.Migrations
 {
@@ -17,7 +17,7 @@ namespace UCLBackend.Service.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.7");
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Account", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Account", b =>
                 {
                     b.Property<string>("AccountID")
                         .HasColumnType("varchar(255)");
@@ -38,7 +38,7 @@ namespace UCLBackend.Service.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Player", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Player", b =>
                 {
                     b.Property<string>("PlayerID")
                         .HasColumnType("varchar(255)");
@@ -73,7 +73,7 @@ namespace UCLBackend.Service.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Setting", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Setting", b =>
                 {
                     b.Property<string>("Key")
                         .HasColumnType("varchar(255)");
@@ -86,7 +86,38 @@ namespace UCLBackend.Service.Migrations
                     b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Team", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Standing", b =>
+                {
+                    b.Property<int>("StandingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Assists")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Goals")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PlayerID")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<int>("Saves")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Shots")
+                        .HasColumnType("int");
+
+                    b.HasKey("StandingId");
+
+                    b.HasIndex("PlayerID");
+
+                    b.ToTable("Standings");
+                });
+
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Team", b =>
                 {
                     b.Property<int>("TeamID")
                         .ValueGeneratedOnAdd()
@@ -106,25 +137,34 @@ namespace UCLBackend.Service.Migrations
                     b.ToTable("Roster");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Account", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Account", b =>
                 {
-                    b.HasOne("UCLBackend.DataAccess.Models.Player", "Player")
+                    b.HasOne("UCLBackend.Service.DataAccess.Models.Player", "Player")
                         .WithMany("Accounts")
                         .HasForeignKey("PlayerID");
 
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Player", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Player", b =>
                 {
-                    b.HasOne("UCLBackend.DataAccess.Models.Team", "Team")
+                    b.HasOne("UCLBackend.Service.DataAccess.Models.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamID");
 
                     b.Navigation("Team");
                 });
 
-            modelBuilder.Entity("UCLBackend.DataAccess.Models.Player", b =>
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Standing", b =>
+                {
+                    b.HasOne("UCLBackend.Service.DataAccess.Models.Player", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerID");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Player", b =>
                 {
                     b.Navigation("Accounts");
                 });

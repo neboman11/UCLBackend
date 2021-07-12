@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.DataAccess.Interfaces;

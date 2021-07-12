@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using UCLBackend.DataAccess.Models;
+using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.DataAccess.Repositories;
 using UCLBackend.Service.Services.Interfaces;
@@ -60,6 +60,7 @@ namespace UCLBackend.Service
             #region Repositories
             services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<ISettingRepository, SettingRepository>();
+            services.AddScoped<IReplayRepository, ReplayRepository>();
             #endregion
         }
 

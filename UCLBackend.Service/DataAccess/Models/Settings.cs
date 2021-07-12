@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UCLBackend.DataAccess.Models
+namespace UCLBackend.Service.DataAccess.Models
 {
     [Table("Settings")]
     public class Setting
