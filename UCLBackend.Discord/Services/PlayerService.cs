@@ -18,7 +18,7 @@ namespace UCLBackend.Discord.Services
             _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
         }
 
-        public async Task AddPlayer(ulong discordID, string playername, string region, string rlTrackerLink, string[] altRLTrackerLinks)
+        public async Task AddPlayer(ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks)
         {
             // Create a new HTTP client
             var client = new HttpClient();
@@ -27,7 +27,6 @@ namespace UCLBackend.Discord.Services
             {
                 DiscordID = discordID,
                 PlayerName = playername,
-                Region = region,
                 RLTrackerLink = rlTrackerLink,
                 AltRLTrackerLinks = altRLTrackerLinks
             };

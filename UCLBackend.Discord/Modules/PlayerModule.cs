@@ -38,11 +38,11 @@ namespace UCLBackend.Discord.Modules
 
         [Command("addplayer")]
         [Summary("Adds a player to the database")]
-        public async Task AddPlayer(IUser user, string desiredName, string region, string rlTrackerLink, [Remainder] string altRLTrackerLinks)
+        public async Task AddPlayer(ulong user, string desiredName, string rlTrackerLink, [Remainder] string altRLTrackerLinks)
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
 
                 if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
                 {
@@ -50,31 +50,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
-                await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
-            }
-            catch (Exception e)
-            {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user.Username}/{desiredName}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
-            }
-        }
-
-        [Command("addplayer")]
-        [Summary("Adds a player to the database")]
-        public async Task AddPlayer(ulong user, string desiredName, string region, string rlTrackerLink, [Remainder] string altRLTrackerLinks)
-        {
-            try
-            {
-                var userRoles = Context.Guild.GetUser(user).Roles;
-
-                if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
-                {
-                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
-                    return;
-                }
-
-                await _playerService.AddPlayer(user, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
+                await _playerService.AddPlayer(user, desiredName, rlTrackerLink, altRLTrackerLinks.Split(' '));
                 await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
             }
             catch (Exception e)
@@ -86,11 +62,11 @@ namespace UCLBackend.Discord.Modules
 
         [Command("addplayer")]
         [Summary("Adds a player to the database")]
-        public async Task AddPlayer(IUser user, string desiredName, string region, string rlTrackerLink)
+        public async Task AddPlayer(ulong user, string desiredName, string rlTrackerLink)
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
 
                 if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
                 {
@@ -98,31 +74,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.AddPlayer(user.Id, desiredName, region, rlTrackerLink, null);
-                await Context.Channel.SendMessageAsync($"{desiredName} ({user.Username}) has been registered as a player.");
-            }
-            catch (Exception e)
-            {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user.Username}/{desiredName}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
-            }
-        }
-
-        [Command("addplayer")]
-        [Summary("Adds a player to the database")]
-        public async Task AddPlayer(ulong user, string desiredName, string region, string rlTrackerLink)
-        {
-            try
-            {
-                var userRoles = Context.Guild.GetUser(user).Roles;
-
-                if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
-                {
-                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
-                    return;
-                }
-
-                await _playerService.AddPlayer(user, desiredName, region, rlTrackerLink, null);
+                await _playerService.AddPlayer(user, desiredName, rlTrackerLink, null);
                 await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
             }
             catch (Exception e)
@@ -141,11 +93,11 @@ namespace UCLBackend.Discord.Modules
 
         [Command("sign")]
         [Summary("Signs a player to a franchise")]
-        public async Task Sign(IUser user, string franchiseName)
+        public async Task Sign(ulong userId, string franchiseName)
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -154,23 +106,23 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.SignPlayer(user.Id, franchiseName);
-                await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseName}");
+                await _playerService.SignPlayer(userId, franchiseName);
+                await Context.Channel.SendMessageAsync($"{userId} has been signed to {franchiseName}");
             }
             catch (Exception e)
             {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {user.Username} to {franchiseName}.");
+                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {userId} to {franchiseName}.");
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }
 
         [Command("sign")]
         [Summary("Signs a player to a franchise")]
-        public async Task Sign(IUser user, IRole franchiseRole)
+        public async Task Sign(ulong userId, IRole franchiseRole)
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -179,23 +131,23 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.SignPlayer(user.Id, franchiseRole.Name);
-                await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseRole.Name}");
+                await _playerService.SignPlayer(userId, franchiseRole.Name);
+                await Context.Channel.SendMessageAsync($"{userId} has been signed to {franchiseRole.Name}");
             }
             catch (Exception e)
             {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {user.Username} to {franchiseRole.Name}.");
+                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {userId} to {franchiseRole.Name}.");
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }
 
         [Command("release")]
         [Summary("Releases a player from a franchise")]
-        public async Task Release(IUser user)
+        public async Task Release(ulong userId)
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -204,12 +156,12 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.ReleasePlayer(user.Id);
-                await Context.Channel.SendMessageAsync($"{user.Username} has been released");
+                await _playerService.ReleasePlayer(userId);
+                await Context.Channel.SendMessageAsync($"{userId} has been released");
             }
             catch (Exception e)
             {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while releasing player {user.Username}.");
+                _logger.Log(LogLevel.Error, e, $"An error occurred while releasing player {userId}.");
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }
