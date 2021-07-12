@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Discord.Requests;
@@ -19,13 +20,15 @@ namespace UCLBackend.Service.Services
 {
     public class ReplayService : IReplayService
     {
+        private readonly string _ballchasingApiKey;
         private readonly IRedisService _redisService;
         private readonly IReplayRepository _replayRepository;
 
-        public ReplayService(IRedisService redisService, IReplayRepository replayRepository)
+        public ReplayService(IRedisService redisService, IReplayRepository replayRepository, IConfiguration configuration)
         {
             _redisService = redisService;
             _replayRepository = replayRepository;
+            _ballchasingApiKey = configuration.GetSection("Ballchasing").GetValue<string>("ApiKey");
         }
 
         public void BeginUploadProcess(ulong userId)
@@ -81,8 +84,7 @@ namespace UCLBackend.Service.Services
         private async Task SendFileToBallchasing(byte[] file, string fileName, string groupId)
         {
             var client = new HttpClient();
-            // TODO: Put key in appsettings
-            client.DefaultRequestHeaders.Add("Authorization", "Z8ucsdFkmM0dHa7eovEosSSm5c3gpHY5LPd4kypf");
+            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
 
             var content = new MultipartFormDataContent("----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
             content.Headers.ContentType.MediaType = "multipart/form-data";
@@ -93,11 +95,11 @@ namespace UCLBackend.Service.Services
             response.EnsureSuccessStatusCode();
         }
 
-        // TODO: Create UCL and League groups
+        // TODO: Place group under correct parent
         private async Task<string> CreateBallchasingGroup(string groupName)
         {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", "Z8ucsdFkmM0dHa7eovEosSSm5c3gpHY5LPd4kypf");
+            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
 
             var content = new CreateBallchasingGroupRequest
             {
@@ -117,7 +119,7 @@ namespace UCLBackend.Service.Services
         private async Task<GetBallchasingGroupResponse> FetchGroupStats(string groupId)
         {
             var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", "Z8ucsdFkmM0dHa7eovEosSSm5c3gpHY5LPd4kypf");
+            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
 
             var response = await client.GetAsync($"https://ballchasing.com/api/groups/{groupId}");
             response.EnsureSuccessStatusCode();
