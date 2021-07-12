@@ -62,6 +62,30 @@ namespace UCLBackend.Discord.Modules
 
         [Command("addplayer")]
         [Summary("Adds a player to the database")]
+        public async Task AddPlayer(ulong user, string desiredName, string region, string rlTrackerLink, [Remainder] string altRLTrackerLinks)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(user).Roles;
+
+                if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.AddPlayer(user, desiredName, region, rlTrackerLink, altRLTrackerLinks.Split(' '));
+                await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user}/{desiredName}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
+        [Command("addplayer")]
+        [Summary("Adds a player to the database")]
         public async Task AddPlayer(IUser user, string desiredName, string region, string rlTrackerLink)
         {
             try
@@ -80,6 +104,30 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user.Username}/{desiredName}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
+        [Command("addplayer")]
+        [Summary("Adds a player to the database")]
+        public async Task AddPlayer(ulong user, string desiredName, string region, string rlTrackerLink)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(user).Roles;
+
+                if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.AddPlayer(user, desiredName, region, rlTrackerLink, null);
+                await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user}/{desiredName}.");
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }
@@ -116,6 +164,31 @@ namespace UCLBackend.Discord.Modules
             }
         }
 
+        [Command("sign")]
+        [Summary("Signs a player to a franchise")]
+        public async Task Sign(IUser user, IRole franchiseRole)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(user.Id).Roles;
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.SignPlayer(user.Id, franchiseRole.Name);
+                await Context.Channel.SendMessageAsync($"{user.Username} has been signed to {franchiseRole.Name}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {user.Username} to {franchiseRole.Name}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
         [Command("release")]
         [Summary("Releases a player from a franchise")]
         public async Task Release(IUser user)
@@ -137,6 +210,40 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while releasing player {user.Username}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
+        [Command("info")]
+        [Summary("Gets information about a player")]
+        public async Task GetPlayerInfo()
+        {
+            try
+            {
+                var player = Context.Message.Author.Id;
+                // var info = await _playerService.GetPlayerInfo(player);
+                // await Context.Channel.SendMessageAsync($"{info.Name} is a {info.Position} playing for {info.Franchise}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
+        [Command("info")]
+        [Summary("Gets information about a player")]
+        public async Task GetPlayerInfo(IUser user)
+        {
+            try
+            {
+                var player = user.Id;
+                // var info = await _playerService.GetPlayerInfo(player);
+                // await Context.Channel.SendMessageAsync($"{info.Name} is a {info.Position} playing for {info.Franchise}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
                 await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
             }
         }

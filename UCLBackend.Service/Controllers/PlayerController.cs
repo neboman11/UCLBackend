@@ -101,5 +101,21 @@ namespace UCLBackend.Service.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet]
+        [Route("PlayerInfo")]
+        public IActionResult PlayerInfo([FromQuery] ulong discordID)
+        {
+            try
+            {
+                var playerInfo = _playerService.GetPlayerInfo(discordID);
+                return new OkObjectResult(playerInfo);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting player info");
+                return BadRequest();
+            }
+        }
     }
 }

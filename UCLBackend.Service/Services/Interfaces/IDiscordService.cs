@@ -6,5 +6,6 @@ namespace UCLBackend.Service.Services.Interfaces
     public interface IDiscordService
     {
         Task AddLeagueRolesToUser(ulong discordId, PlayerLeague league);
+        Task AddFranchiseRolesToUser(ulong discordId, PlayerFranchise franchise);
     }
 }

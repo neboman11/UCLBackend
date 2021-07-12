@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UCLBackend.Service.Data.Requests;
 using UCLBackend.Discord.Interfaces.Services;
+using UCLBackend.Service.Data.Responses;
 
 namespace UCLBackend.Discord.Services
 {
@@ -71,6 +72,17 @@ namespace UCLBackend.Discord.Services
             // Send the request
             var response = await client.PutAsync($"{_backendUrl}/Player/ReleasePlayer", body);
             response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+
+            // Send the request
+            var response = await client.GetAsync($"{_backendUrl}/Player/PlayerInfo?id={discordID}");
+            response.EnsureSuccessStatusCode();
+            return JsonConvert.DeserializeObject<PlayerInfoResponse>(await response.Content.ReadAsStringAsync());
         }
     }
 }

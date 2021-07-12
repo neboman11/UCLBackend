@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using UCLBackend.Service.Data.Enums;
 using System;
+using UCLBackend.Service.Data.Responses;
 
 namespace UCLBackend.Service.Services
 {
@@ -44,6 +45,7 @@ namespace UCLBackend.Service.Services
             player = await UpdatePlayerMMR(player);
 
             await _discordService.AddLeagueRolesToUser(player.DiscordID, GetPlayerLeague(player.Salary.Value));
+            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null));
 
             // Save the player to the database last in case something goes wrong
             _playerRepository.AddPlayer(player);
@@ -56,6 +58,7 @@ namespace UCLBackend.Service.Services
 
         public async Task UpdateAllMMRs()
         {
+            // TODO: Update league roles
             var players = _playerRepository.GetAllPlayers();
 
             foreach (var player in players)
@@ -90,6 +93,8 @@ namespace UCLBackend.Service.Services
 
             player.Team = team;
             player.IsFreeAgent = false;
+
+            _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(player.Team));
 
             _playerRepository.UpdatePlayer(player);
         }
@@ -153,6 +158,18 @@ namespace UCLBackend.Service.Services
             _playerRepository.UpdatePlayer(player);
         }
 
+        public PlayerInfoResponse GetPlayerInfo(ulong discordID)
+        {
+            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+
+            return new PlayerInfoResponse
+            {
+                Salary = player.Salary.Value,
+                PeakMMR = player.PeakMMR.Value,
+                CurrentMMR = player.CurrentMMR.Value
+            };
+        }
+
         #region Private Methods
         private List<Account> CreateAccountsList(string[] rlTrackerLinks, string PlayerID)
         {
@@ -183,6 +200,7 @@ namespace UCLBackend.Service.Services
 
         private async Task<Player> UpdatePlayerMMR(Player player)
         {
+            // TODO: CurrentMMR is max of 2s and 3s latest mmr
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
 
             player.PeakMMR = mmrs.Select(x => x.Item1).Max();
@@ -213,6 +231,44 @@ namespace UCLBackend.Service.Services
             else
             {
                 return PlayerLeague.Superior;
+            }
+        }
+
+        private PlayerFranchise GetPlayerFranchise(Team team)
+        {
+            if (team == null)
+            {
+                return PlayerFranchise.Free_Agents;
+            }
+
+            switch (team.TeamName)
+            {
+                case "Astros":
+                    return PlayerFranchise.Astros;
+                case "Atlantics":
+                    return PlayerFranchise.Atlantics;
+                case "Bison":
+                    return PlayerFranchise.Bison;
+                case "Cobras":
+                    return PlayerFranchise.Cobras;
+                case "Gators":
+                    return PlayerFranchise.Gators;
+                case "Knights":
+                    return PlayerFranchise.Knights;
+                case "Lightning":
+                    return PlayerFranchise.Lightning;
+                case "Raptors":
+                    return PlayerFranchise.Raptors;
+                case "Samurai":
+                    return PlayerFranchise.Samurai;
+                case "Spartans":
+                    return PlayerFranchise.Spartans;
+                case "XII Boost":
+                    return PlayerFranchise.XII_Boost;
+                case "Vikings":
+                    return PlayerFranchise.Vikings;
+                default:
+                    return PlayerFranchise.Free_Agents;
             }
         }
         #endregion
