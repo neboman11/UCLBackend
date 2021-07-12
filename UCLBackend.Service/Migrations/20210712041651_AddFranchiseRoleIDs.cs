@@ -19,52 +19,52 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Bison.RoleId", "820875797635006525" }
+                values: new object[] { "Franchise.Bison.RoleId", "860638221892976654" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Cobras.RoleId", "820875901180182539" }
+                values: new object[] { "Franchise.Cobras.RoleId", "860638221892976653" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Gators.RoleId", "820876543563399179" }
+                values: new object[] { "Franchise.Gators.RoleId", "860638221880000551" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Knights.RoleId", "820876631810899978" }
+                values: new object[] { "Franchise.Knights.RoleId", "860638221880000550" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Lightning.RoleId", "858715056149364756" }
+                values: new object[] { "Franchise.Lightning.RoleId", "860638221880000549" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Raptors.RoleId", "820876670658674709" }
+                values: new object[] { "Franchise.Raptors.RoleId", "860638221880000548" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Samurai.RoleId", "820876924246818827" }
+                values: new object[] { "Franchise.Samurai.RoleId", "860638221880000547" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Spartans.RoleId", "820876212489682945" }
+                values: new object[] { "Franchise.Spartans.RoleId", "864285260957876236" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.XII_Boost.RoleId", "820876089592512512" }
+                values: new object[] { "Franchise.XII_Boost.RoleId", "864285434775732254" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Vikings.RoleId", "820877018887094312" }
+                values: new object[] { "Franchise.Vikings.RoleId", "860638221880000546" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
