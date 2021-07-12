@@ -221,8 +221,8 @@ namespace UCLBackend.Discord.Modules
             try
             {
                 var player = Context.Message.Author.Id;
-                // var info = await _playerService.GetPlayerInfo(player);
-                // await Context.Channel.SendMessageAsync($"{info.Name} is a {info.Position} playing for {info.Franchise}");
+                var info = await _playerService.GetPlayerInfo(player);
+                await Context.Channel.SendMessageAsync($"Salary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
             }
             catch (Exception e)
             {
@@ -238,8 +238,25 @@ namespace UCLBackend.Discord.Modules
             try
             {
                 var player = user.Id;
-                // var info = await _playerService.GetPlayerInfo(player);
-                // await Context.Channel.SendMessageAsync($"{info.Name} is a {info.Position} playing for {info.Franchise}");
+                var info = await _playerService.GetPlayerInfo(player);
+                await Context.Channel.SendMessageAsync($"User: {user.Username}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
+                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+            }
+        }
+
+        [Command("info")]
+        [Summary("Gets information about a player")]
+        public async Task GetPlayerInfo(ulong discordID)
+        {
+            try
+            {
+                var player = discordID;
+                var info = await _playerService.GetPlayerInfo(player);
+                await Context.Channel.SendMessageAsync($"User: {Context.Guild.GetUser(discordID).Username}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
             }
             catch (Exception e)
             {

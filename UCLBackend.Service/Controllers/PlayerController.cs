@@ -104,11 +104,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpGet]
         [Route("PlayerInfo")]
-        public IActionResult PlayerInfo([FromQuery] ulong discordID)
+        public IActionResult PlayerInfo([FromQuery] ulong id)
         {
             try
             {
-                var playerInfo = _playerService.GetPlayerInfo(discordID);
+                var playerInfo = _playerService.GetPlayerInfo(id);
                 return new OkObjectResult(playerInfo);
             }
             catch (Exception e)
