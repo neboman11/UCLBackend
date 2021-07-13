@@ -453,8 +453,9 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Development appsettings (contains sensitive information)
+# appsettings (contains sensitive information)
 UCLBackend.Service/appsettings.Development.json
+appsettings.Production.json
 
 # Environment variables file
 .env
