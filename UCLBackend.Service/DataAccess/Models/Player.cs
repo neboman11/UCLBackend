@@ -23,7 +23,8 @@ namespace UCLBackend.Service.DataAccess.Models
     [Table("Accounts")]
     public class Account
     {
-        public string AccountID { get; set; }
+        public int AccountID { get; set; }
+        public string AccountName { get; set; }
         public string Platform { get; set; }
         public bool IsPrimary { get; set; }
         public string PlayerID { get; set; }

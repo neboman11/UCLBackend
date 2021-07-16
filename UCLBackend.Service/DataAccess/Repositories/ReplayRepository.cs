@@ -18,9 +18,9 @@ namespace UCLBBackend.DataAccess.Repositories
             _context.Standings.Add(standing);
         }
 
-        public Player GetPlayerByAccount(string platform, string accountId)
+        public Player GetPlayerByAccount(string platform, string accountName)
         {
-            return _context.Accounts.FirstOrDefault(p => p.Platform == platform && p.AccountID == accountId).Player;
+            return _context.Accounts.FirstOrDefault(p => p.Platform == platform && p.AccountName == accountName).Player;
         }
     }
 }
