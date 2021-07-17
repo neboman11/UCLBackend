@@ -66,7 +66,7 @@ namespace UCLBackend.Service.Services
             {
                 if (player.IsFreeAgent.Value)
                 {
-                    await UpdatePlayerMMR(player);
+                    _playerRepository.UpdatePlayer(await UpdatePlayerMMR(player));
                 }
             }
         }
