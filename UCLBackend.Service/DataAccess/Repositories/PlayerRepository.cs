@@ -61,17 +61,19 @@ namespace UCLBackend.Service.DataAccess.Repositories
             var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
             
             var doublesMMRs = new List<(int, DateTime)>();
+            doublesMMRs.Add((0, DateTime.MinValue));
             if (player.Data.ContainsKey(11))
             {
                 doublesMMRs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
             }
 
             var triplesMMRs = new List<(int, DateTime)>();
+            triplesMMRs.Add((0, DateTime.MinValue));
             if (player.Data.ContainsKey(13))
             {
                 triplesMMRs = player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
             }
-            
+
             return (doublesMMRs, triplesMMRs);
         }
 

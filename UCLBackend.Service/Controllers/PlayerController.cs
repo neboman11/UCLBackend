@@ -49,7 +49,7 @@ namespace UCLBackend.Service.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error updating all mmr");
+                _logger.LogError(e, "Error updating all MMRs");
                 return BadRequest();
             }
         }

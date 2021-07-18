@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UCLBackend.Service.Data.Enums;
 using System;
 using UCLBackend.Service.Data.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace UCLBackend.Service.Services
 {
@@ -16,12 +17,14 @@ namespace UCLBackend.Service.Services
         private readonly IPlayerRepository _playerRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IDiscordService _discordService;
+        private readonly ILogger<PlayerService> _logger;
 
-        public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService)
+        public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, ILogger<PlayerService> logger)
         {
             _playerRepository = playerRepository;
             _settingRepository = settingRepository;
             _discordService = discordService;
+            _logger = logger;
         }
 
         public async Task AddPlayer(AddPlayerRequest request)
@@ -66,7 +69,14 @@ namespace UCLBackend.Service.Services
             {
                 if (player.IsFreeAgent.Value)
                 {
-                    _playerRepository.UpdatePlayer(await UpdatePlayerMMR(player));
+                    try
+                    {
+                        _playerRepository.UpdatePlayer(await UpdatePlayerMMR(player));
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"Error updating MMR for player {player.Name} ({player.PlayerID})");
+                    }
                 }
             }
         }
