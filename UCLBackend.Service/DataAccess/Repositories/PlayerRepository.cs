@@ -48,7 +48,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return player.Data.MetaData.PlayerID;
         }
 
-        public async Task<List<(int, DateTime)>> RemoteGetPlayerMMRs(string playerID)
+        public async Task<(List<(int, DateTime)>, List<(int, DateTime)>)> RemoteGetPlayerMMRs(string playerID)
         {
             // Create a new HTTP client
             var client = new HttpClient();
@@ -60,9 +60,19 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
             var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
             
-            List<(int, DateTime)> mmrs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
-            mmrs.AddRange(player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList());
-            return mmrs;
+            var doublesMMRs = new List<(int, DateTime)>();
+            if (player.Data.ContainsKey(11))
+            {
+                doublesMMRs = player.Data[11].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
+            }
+
+            var triplesMMRs = new List<(int, DateTime)>();
+            if (player.Data.ContainsKey(13))
+            {
+                triplesMMRs = player.Data[13].ToList().Select(x => (x.Rating, x.CollectDate)).ToList();
+            }
+            
+            return (doublesMMRs, triplesMMRs);
         }
 
         public void UpdatePlayerPeakMMR(string playerID, int peakMMR)

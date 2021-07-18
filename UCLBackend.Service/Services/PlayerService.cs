@@ -128,8 +128,10 @@ namespace UCLBackend.Service.Services
 
             // Check if current mmr is above the min salary (not the frozen one)
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
+            var doublesMMRs = mmrs.Item1;
+            var triplesMMRs = mmrs.Item2;
 
-            var peakMMR = mmrs.Select(x => x.Item1).Max();
+            var peakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
             var salary = ((peakMMR / 50) * 50) / 100.0;
 
             if (salary.Equals(ultraMinSalary - 0.5))
@@ -211,10 +213,12 @@ namespace UCLBackend.Service.Services
         {
             // TODO: CurrentMMR is max of 2s and 3s latest mmr
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
+            var doublesMMRs = mmrs.Item1;
+            var triplesMMRs = mmrs.Item2;
 
-            player.PeakMMR = mmrs.Select(x => x.Item1).Max();
-            player.CurrentMMR = mmrs.Find(x => x.Item2 == mmrs.Select(x => x.Item2).Max()).Item1;
-            player.Salary = ((mmrs.Select(x => x.Item1).Max() / 50) * 50) / 100.0;
+            player.PeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
+            player.Salary = ((player.PeakMMR / 50) * 50) / 100.0;
+            player.CurrentMMR = doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 > triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1 ? doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 : triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1;
 
             return player;
         }
