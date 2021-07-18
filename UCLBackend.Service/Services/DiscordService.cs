@@ -52,7 +52,7 @@ namespace UCLBackend.Services.Services
 
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
-            response.EnsureSuccessStatusCode();
+            await ValidateResponseCode(response);
         }
 
         // TODO: Remove Free Agent role from user when they sign to a team
@@ -123,7 +123,7 @@ namespace UCLBackend.Services.Services
 
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
-            response.EnsureSuccessStatusCode();
+            await ValidateResponseCode(response);
         }
 
         public async Task SetFreeAgentNickname(ulong discordId, string nickname)
@@ -207,7 +207,7 @@ namespace UCLBackend.Services.Services
 
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
-            response.EnsureSuccessStatusCode();
+            await ValidateResponseCode(response);
         }
 
         public async Task RemoveLeagueRoles(ulong discordId, PlayerLeague league)
@@ -236,7 +236,7 @@ namespace UCLBackend.Services.Services
 
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
-            response.EnsureSuccessStatusCode();
+            await ValidateResponseCode(response);
         }
 
         #region Private Methods
@@ -249,7 +249,16 @@ namespace UCLBackend.Services.Services
 
             // Send the request
             var response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
+            await ValidateResponseCode(response);
+        }
+
+        private async Task ValidateResponseCode(HttpResponseMessage response)
+        {
+            if (((int)response.StatusCode) >= 400)
+            {
+                var responseMessage = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"{response.StatusCode} {response.ReasonPhrase}: {responseMessage}");
+            }
         }
         #endregion
     }
