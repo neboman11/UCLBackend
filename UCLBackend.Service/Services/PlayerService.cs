@@ -116,12 +116,15 @@ namespace UCLBackend.Service.Services
         public async Task ReleasePlayer(ulong discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+
+            // Need to remove the old franchise role before clearing the team
+            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(player.Team), GetPlayerLeague(player.Salary.Value));
+
             player.IsFreeAgent = true;
             player.TeamID = null;
             player = await UpdatePlayerMMR(player);
 
             // Update Discord
-            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(player.Team), GetPlayerLeague(player.Salary.Value));
             await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), GetPlayerLeague(player.Salary.Value));
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
