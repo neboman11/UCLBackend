@@ -33,6 +33,11 @@ namespace UCLBackend.Service.Services
             var platform = request.RLTrackerLink.Split('/').ToList().TakeLast(3).First();
             var accountName = request.RLTrackerLink.Split('/').ToList().TakeLast(2).First();
 
+            if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
+            {
+                throw new ArgumentException("Main tracker link is malformed");
+            }
+
             var playerID = await _playerRepository.RemoteGetPlayerID(platform, accountName);
 
             Player player = new Player
@@ -117,6 +122,16 @@ namespace UCLBackend.Service.Services
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
+            if (player == null)
+            {
+                throw new ArgumentException("Player not found");
+            }
+
+            if (player.IsFreeAgent.Value)
+            {
+                throw new ArgumentException("Player is not signed to a team");
+            }
+
             // Need to remove the old franchise role before clearing the team
             await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(player.Team), GetPlayerLeague(player.Salary.Value));
 
@@ -134,6 +149,11 @@ namespace UCLBackend.Service.Services
         public async Task PlayerRankout(ulong discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+
+            if (player == null)
+            {
+                throw new ArgumentException("Player not found");
+            }
 
             var ultraMinSalary = double.Parse(_settingRepository.GetSetting("League.Ultra.MinSalary"));
             var eliteMinSalary = double.Parse(_settingRepository.GetSetting("League.Elite.MinSalary"));
@@ -186,6 +206,11 @@ namespace UCLBackend.Service.Services
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
+            if (player == null)
+            {
+                throw new ArgumentException("Player not found");
+            }
+
             return new PlayerInfoResponse
             {
                 Salary = player.Salary.Value,
@@ -208,6 +233,11 @@ namespace UCLBackend.Service.Services
                         var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
                         var accountName = rlTrackerLink.Split('/').ToList().Last();
 
+                        if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
+                        {
+                            throw new ArgumentException("Alt tracker link is malformed");
+                        }
+
                         accounts.Add(new Account
                         {
                             Platform = platform,
@@ -224,7 +254,6 @@ namespace UCLBackend.Service.Services
 
         private async Task<Player> UpdatePlayerMMR(Player player)
         {
-            // TODO: CurrentMMR is max of 2s and 3s latest mmr
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
             var doublesMMRs = mmrs.Item1;
             var triplesMMRs = mmrs.Item2;
@@ -294,7 +323,7 @@ namespace UCLBackend.Service.Services
                 case "Vikings":
                     return PlayerFranchise.Vikings;
                 default:
-                    return PlayerFranchise.Free_Agents;
+                    throw new ArgumentException("Invalid team name");
             }
         }
         #endregion

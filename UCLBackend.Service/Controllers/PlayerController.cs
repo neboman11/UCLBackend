@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UCLBackend.Service.Data.Requests;
+using UCLBackend.Service.Data.Responses;
 using UCLBackend.Service.Services.Interfaces;
 
 namespace UCLBackend.Service.Controllers
@@ -34,7 +35,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error adding player");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
 
@@ -50,7 +51,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error updating all MMRs");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
 
@@ -66,7 +67,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error signing player");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
 
@@ -82,7 +83,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error releasing player");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
 
@@ -98,7 +99,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error rankout player");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
 
@@ -114,7 +115,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting player info");
-                return BadRequest();
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
     }
