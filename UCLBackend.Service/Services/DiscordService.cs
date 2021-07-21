@@ -252,7 +252,7 @@ namespace UCLBackend.Services.Services
             Uri uri = new Uri($"{_discordUrl}/channels/{_transactionChannelId}/messages");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}");
+            var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}", Encoding.UTF8, "application/json");
 
             // Send the request
             var response = await client.PostAsync(uri.ToString(), content);
