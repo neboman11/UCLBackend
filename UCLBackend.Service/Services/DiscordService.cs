@@ -19,6 +19,7 @@ namespace UCLBackend.Services.Services
         private ulong _discordGuildId;
         private readonly ISettingRepository _settingRepository;
         private readonly ILogger<DiscordService> _logger;
+        private ulong _transactionChannelId;
 
         public DiscordService(IConfiguration configuration, ISettingRepository settingRepository, ILogger<DiscordService> logger)
         {
@@ -27,6 +28,8 @@ namespace UCLBackend.Services.Services
             _discordGuildId = configuration.GetSection("Discord").GetValue<ulong>("GuildId");
             _settingRepository = settingRepository;
             _logger = logger;
+
+            _transactionChannelId = ulong.Parse(_settingRepository.GetSetting("Transaction.ChannelId"));
         }
 
         public async Task AddLeagueRolesToUser(ulong discordId, PlayerLeague league)
@@ -52,8 +55,6 @@ namespace UCLBackend.Services.Services
             var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
-
-            _logger.LogTrace($"Discord API route: {uri.ToString()}");
 
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
@@ -125,8 +126,6 @@ namespace UCLBackend.Services.Services
             var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
-
-            _logger.LogTrace($"Discord API route: {uri.ToString()}");
 
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
@@ -212,8 +211,6 @@ namespace UCLBackend.Services.Services
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            _logger.LogTrace($"Discord API route: {uri.ToString()}");
-
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
             await ValidateResponseCode(response);
@@ -243,10 +240,22 @@ namespace UCLBackend.Services.Services
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            _logger.LogTrace($"Discord API route: {uri.ToString()}");
-
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
+            await ValidateResponseCode(response);
+        }
+
+        public async Task LogTransaction(ulong issuerDiscordID, string message)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            Uri uri = new Uri($"{_discordUrl}/channels/{_transactionChannelId}/messages");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
+
+            var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}");
+
+            // Send the request
+            var response = await client.PostAsync(uri.ToString(), content);
             await ValidateResponseCode(response);
         }
 
@@ -257,8 +266,6 @@ namespace UCLBackend.Services.Services
             var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}");
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
-
-            _logger.LogTrace($"Discord API route: {uri.ToString()}");
 
             // Send the request
             var response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));

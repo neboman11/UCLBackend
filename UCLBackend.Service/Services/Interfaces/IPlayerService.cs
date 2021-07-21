@@ -8,9 +8,9 @@ namespace UCLBackend.Service.Services.Interfaces
     {
         Task AddPlayer(AddPlayerRequest request);
         Task UpdateAllMMRs();
-        Task SignPlayer(ulong discordID, string franchiseName);
-        Task ReleasePlayer(ulong discordID);
-        Task PlayerRankout(ulong discordID);
+        Task SignPlayer(SignPlayerRequest request);
+        Task ReleasePlayer(BaseRequest request);
+        Task PlayerRankout(BaseRequest request);
         PlayerInfoResponse GetPlayerInfo(ulong discordID);
     }
 }

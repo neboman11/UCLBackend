@@ -5,9 +5,9 @@ namespace UCLBackend.Discord.Interfaces.Services
 {
     public interface IPlayerService
     {
-        Task AddPlayer(ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks);
-        Task SignPlayer(ulong discordID, string franchiseName);
-        Task ReleasePlayer(ulong discordID);
+        Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks);
+        Task SignPlayer(ulong issuerDiscordID, ulong discordID, string franchiseName);
+        Task ReleasePlayer(ulong issuerDiscordID, ulong discordID);
         Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID);
     }
 }

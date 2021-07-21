@@ -50,7 +50,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.AddPlayer(user, desiredName, rlTrackerLink, altRLTrackerLinks.Split(' '));
+                await _playerService.AddPlayer(Context.Message.Author.Id, user, desiredName, rlTrackerLink, altRLTrackerLinks.Split(' '));
                 await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
             }
             catch (Exception e)
@@ -74,7 +74,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.AddPlayer(user, desiredName, rlTrackerLink, null);
+                await _playerService.AddPlayer(Context.Message.Author.Id, user, desiredName, rlTrackerLink, null);
                 await Context.Channel.SendMessageAsync($"{desiredName} ({Context.Guild.GetUser(user)}) has been registered as a player.");
             }
             catch (Exception e)
@@ -106,7 +106,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.SignPlayer(userId, franchiseName);
+                await _playerService.SignPlayer(Context.Message.Author.Id, userId, franchiseName);
                 await Context.Channel.SendMessageAsync($"{userId} has been signed to {franchiseName}");
             }
             catch (Exception e)
@@ -131,7 +131,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.SignPlayer(userId, franchiseRole.Name);
+                await _playerService.SignPlayer(Context.Message.Author.Id, userId, franchiseRole.Name);
                 await Context.Channel.SendMessageAsync($"{userId} has been signed to {franchiseRole.Name}");
             }
             catch (Exception e)
@@ -156,7 +156,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _playerService.ReleasePlayer(userId);
+                await _playerService.ReleasePlayer(Context.Message.Author.Id, userId);
                 await Context.Channel.SendMessageAsync($"{userId} has been released");
             }
             catch (Exception e)

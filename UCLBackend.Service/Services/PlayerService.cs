@@ -63,6 +63,8 @@ namespace UCLBackend.Service.Services
             {
                 _playerRepository.AddAccount(account);
             }
+
+            await LogTransaction(request.IssuerDiscordID, $"Added player {player.Name}");
         }
 
         public async Task UpdateAllMMRs()
@@ -84,11 +86,13 @@ namespace UCLBackend.Service.Services
                     }
                 }
             }
+
+            _logger.LogInformation("Updated MMRs for all players");
         }
 
-        public async Task SignPlayer(ulong discordID, string franchiseName)
+        public async Task SignPlayer(SignPlayerRequest request)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
 
             if (player == null)
             {
@@ -100,7 +104,7 @@ namespace UCLBackend.Service.Services
                 throw new ArgumentException("Player is already signed");
             }
 
-            var team = _playerRepository.GetTeam(franchiseName, GetPlayerLeague(player.Salary.Value));
+            var team = _playerRepository.GetTeam(request.FranchiseName, GetPlayerLeague(player.Salary.Value));
 
             if (team == null)
             {
@@ -116,11 +120,13 @@ namespace UCLBackend.Service.Services
             await _discordService.SetFranchiseNickname(player.DiscordID, GetPlayerFranchise(player.Team), player.Name);
 
             _playerRepository.UpdatePlayer(player);
+
+            await LogTransaction(request.IssuerDiscordID, $"Signed player {player.Name} to {request.FranchiseName}");
         }
 
-        public async Task ReleasePlayer(ulong discordID)
+        public async Task ReleasePlayer(BaseRequest request)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
 
             if (player == null)
             {
@@ -144,11 +150,13 @@ namespace UCLBackend.Service.Services
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
             _playerRepository.UpdatePlayer(player);
+
+            await LogTransaction(request.IssuerDiscordID, $"Released player {player.Name}");
         }
 
-        public async Task PlayerRankout(ulong discordID)
+        public async Task PlayerRankout(BaseRequest request)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
 
             if (player == null)
             {
@@ -198,8 +206,14 @@ namespace UCLBackend.Service.Services
                 player.PeakMMR = peakMMR;
                 player.Salary = salary;
             }
+            else
+            {
+                throw new Exception("Player cannot rankout");
+            }
 
             _playerRepository.UpdatePlayer(player);
+
+            await LogTransaction(request.IssuerDiscordID, $"Player {player.Name} ranked out");
         }
 
         public PlayerInfoResponse GetPlayerInfo(ulong discordID)
@@ -325,6 +339,18 @@ namespace UCLBackend.Service.Services
                 default:
                     throw new ArgumentException("Invalid team name");
             }
+        }
+
+        private async Task LogTransaction(ulong issuerDiscordID, string message, string discordMessage = null)
+        {
+            _logger.LogInformation($"{issuerDiscordID}: {message}");
+
+            if (discordMessage == null)
+            {
+                discordMessage = message;
+            }
+
+            await _discordService.LogTransaction(issuerDiscordID, discordMessage);
         }
         #endregion
     }

@@ -61,7 +61,7 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-                await _playerService.SignPlayer(request.DiscordID, request.FranchiseName);
+                await _playerService.SignPlayer(request);
                 return Ok();
             }
             catch (Exception e)
@@ -77,7 +77,7 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-                await _playerService.ReleasePlayer(request.DiscordID);
+                await _playerService.ReleasePlayer(request);
                 return Ok();
             }
             catch (Exception e)
@@ -89,11 +89,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPut]
         [Route("PlayerRankout")]
-        public async Task<IActionResult> PlayerRankout([FromQuery] ulong discordID)
+        public async Task<IActionResult> PlayerRankout([FromBody] BaseRequest request)
         {
             try
             {
-                await _playerService.PlayerRankout(discordID);
+                await _playerService.PlayerRankout(request);
                 return Ok();
             }
             catch (Exception e)

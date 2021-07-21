@@ -18,13 +18,14 @@ namespace UCLBackend.Discord.Services
             _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
         }
 
-        public async Task AddPlayer(ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks)
+        public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
             var content = new AddPlayerRequest
             {
+                IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID,
                 PlayerName = playername,
                 RLTrackerLink = rlTrackerLink,
@@ -44,13 +45,14 @@ namespace UCLBackend.Discord.Services
             }
         }
 
-        public async Task SignPlayer(ulong discordID, string franchiseName)
+        public async Task SignPlayer(ulong issuerDiscordID, ulong discordID, string franchiseName)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
             var content = new SignPlayerRequest
             {
+                IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID,
                 FranchiseName = franchiseName
             };
@@ -68,13 +70,14 @@ namespace UCLBackend.Discord.Services
             }
         }
 
-        public async Task ReleasePlayer(ulong discordID)
+        public async Task ReleasePlayer(ulong issuerDiscordID, ulong discordID)
         {
             // Create a new HTTP client
             var client = new HttpClient();
             // Set the request content
             var content = new BaseRequest
             {
+                IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID
             };
 
