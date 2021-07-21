@@ -35,7 +35,13 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
-            response.EnsureSuccessStatusCode();
+
+            // Check the response
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
+                throw new Exception(error.ErrorMessage);
+            }
         }
 
         public async Task SignPlayer(ulong discordID, string franchiseName)
@@ -53,7 +59,13 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.PutAsync($"{_backendUrl}/Player/SignPlayer", body);
-            response.EnsureSuccessStatusCode();
+
+            // Check the response
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
+                throw new Exception(error.ErrorMessage);
+            }
         }
 
         public async Task ReleasePlayer(ulong discordID)
@@ -70,7 +82,13 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.PutAsync($"{_backendUrl}/Player/ReleasePlayer", body);
-            response.EnsureSuccessStatusCode();
+
+            // Check the response
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
+                throw new Exception(error.ErrorMessage);
+            }
         }
 
         public async Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID)
@@ -80,7 +98,14 @@ namespace UCLBackend.Discord.Services
 
             // Send the request
             var response = await client.GetAsync($"{_backendUrl}/Player/PlayerInfo?id={discordID}");
-            response.EnsureSuccessStatusCode();
+
+            // Check the response
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
+                throw new Exception(error.ErrorMessage);
+            }
+            
             return JsonConvert.DeserializeObject<PlayerInfoResponse>(await response.Content.ReadAsStringAsync());
         }
     }

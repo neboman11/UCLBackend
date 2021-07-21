@@ -56,7 +56,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user}/{desiredName}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -80,7 +80,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while adding player {user}/{desiredName}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -112,7 +112,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {userId} to {franchiseName}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -137,7 +137,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while signing player {userId} to {franchiseRole.Name}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -162,7 +162,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while releasing player {userId}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -179,7 +179,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -196,7 +196,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -213,7 +213,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
     }
