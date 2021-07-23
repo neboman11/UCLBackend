@@ -111,5 +111,29 @@ namespace UCLBackend.Discord.Services
             
             return JsonConvert.DeserializeObject<PlayerInfoResponse>(await response.Content.ReadAsStringAsync());
         }
+
+        public async Task PlayerRankout(ulong issuerDiscordID, ulong discordID)
+        {
+            // Create a new HTTP client
+            var client = new HttpClient();
+            // Set the request content
+            var content = new BaseRequest
+            {
+                IssuerDiscordID = issuerDiscordID,
+                DiscordID = discordID
+            };
+
+            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+
+            // Send the request
+            var response = await client.PutAsync($"{_backendUrl}/Player/PlayerRankout", body);
+
+            // Check the response
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
+                throw new Exception(error.ErrorMessage);
+            }
+        }
     }
 }

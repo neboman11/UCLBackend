@@ -211,6 +211,7 @@ namespace UCLBackend.Discord.Modules
             }
         }
 
+        // TODO: Change user field to show username in database
         [Command("info")]
         [Summary("Gets information about a player")]
         public async Task GetPlayerInfo(IUser user)
@@ -241,6 +242,37 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Guild.GetUser(discordID)?.Username ?? discordID.ToString()}.");
+                await Context.Channel.SendMessageAsync(e.Message);
+            }
+        }
+
+        [Command("rankout")]
+        [Summary("Rankout a player to the next league")]
+        public async Task Rankout(ulong userId)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.PlayerRankout(Context.Message.Author.Id, userId);
+                await Context.Channel.SendMessageAsync($"{userId} has been ranked out");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while ranking out player {userId}.");
                 await Context.Channel.SendMessageAsync(e.Message);
             }
         }

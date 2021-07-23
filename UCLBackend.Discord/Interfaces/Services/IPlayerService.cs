@@ -9,5 +9,6 @@ namespace UCLBackend.Discord.Interfaces.Services
         Task SignPlayer(ulong issuerDiscordID, ulong discordID, string franchiseName);
         Task ReleasePlayer(ulong issuerDiscordID, ulong discordID);
         Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID);
+        Task PlayerRankout(ulong issuerDiscordID, ulong discordID);
     }
 }
