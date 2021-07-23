@@ -42,7 +42,12 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
 
                 if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
                 {
@@ -66,7 +71,12 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
 
                 if (!userRoles.ToList().Any(x => _roleIds.ContainsValue(x.Id)))
                 {
@@ -97,7 +107,13 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -122,7 +138,13 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -147,7 +169,13 @@ namespace UCLBackend.Discord.Modules
         {
             try
             {
-                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id).Roles;
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
                 // Allowed roles are Owner, Directors, and League Operators
                 var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
                 if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
@@ -208,11 +236,11 @@ namespace UCLBackend.Discord.Modules
             {
                 var player = discordID;
                 var info = await _playerService.GetPlayerInfo(player);
-                await Context.Channel.SendMessageAsync($"User: {Context.Guild.GetUser(discordID).Username}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
+                await Context.Channel.SendMessageAsync($"User: {Context.Guild.GetUser(discordID)?.Username ?? discordID.ToString()}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
             }
             catch (Exception e)
             {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
+                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Guild.GetUser(discordID)?.Username ?? discordID.ToString()}.");
                 await Context.Channel.SendMessageAsync(e.Message);
             }
         }
