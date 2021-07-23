@@ -69,7 +69,6 @@ namespace UCLBackend.Service.Services
 
         public async Task UpdateAllMMRs()
         {
-            // TODO: Update league roles for free agents
             var players = _playerRepository.GetAllPlayers();
 
             foreach (var player in players)
@@ -78,7 +77,20 @@ namespace UCLBackend.Service.Services
                 {
                     try
                     {
-                        _playerRepository.UpdatePlayer(await UpdatePlayerMMR(player));
+                        var oldLeague = GetPlayerLeague(player.Salary.Value);
+
+                        var newPlayer = await UpdatePlayerMMR(player);
+                        var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
+
+                        if (oldLeague != newLeague)
+                        {
+                            await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
+                            await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+
+                            await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
+                        }
+
+                        _playerRepository.UpdatePlayer(newPlayer);
                     }
                     catch (Exception e)
                     {
@@ -172,39 +184,32 @@ namespace UCLBackend.Service.Services
             var doublesMMRs = mmrs.Item1;
             var triplesMMRs = mmrs.Item2;
 
-            var peakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
-            var salary = ((peakMMR / 50) * 50) / 100.0;
+            var newPeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
+            var newSalary = ((newPeakMMR / 50) * 50) / 100.0;
+            
+            if (newSalary >= superiorMinSalary - 0.5 && GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior)
+            {
+                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Superior);
+                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
 
-            if (salary.Equals(ultraMinSalary - 0.5))
-            {
-                player.PeakMMR = (int)(ultraMinSalary * 100);
-                player.Salary = ultraMinSalary;
+                player.PeakMMR = newPeakMMR;
+                player.Salary = newSalary;
             }
-            else if (salary > ultraMinSalary - 0.5)
+            else if (newSalary >= eliteMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
             {
-                player.PeakMMR = peakMMR;
-                player.Salary = salary;
+                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Elite);
+                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
+
+                player.PeakMMR = newPeakMMR;
+                player.Salary = newSalary;
             }
-            else if (salary.Equals(eliteMinSalary - 0.5))
+            else if (newSalary >= ultraMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Ultra || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
             {
-                player.PeakMMR = (int)(eliteMinSalary * 100);
-                player.Salary = eliteMinSalary;
-            }
-            else if (salary > eliteMinSalary - 0.5)
-            {
-                player.PeakMMR = peakMMR;
-                player.Salary = salary;
-            }
-            else if (player.Salary.Value.Equals(superiorMinSalary - 0.5))
-            {
-                
-                player.PeakMMR = (int)(eliteMinSalary * 100);
-                player.Salary = eliteMinSalary;
-            }
-            else if (salary > superiorMinSalary - 0.5)
-            {
-                player.PeakMMR = peakMMR;
-                player.Salary = salary;
+                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Ultra);
+                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
+
+                player.PeakMMR = newPeakMMR;
+                player.Salary = newSalary;
             }
             else
             {

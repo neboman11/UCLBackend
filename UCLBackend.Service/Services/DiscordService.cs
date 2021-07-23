@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace UCLBackend.Services.Services
 {
-    // TODO: While adding user to database, set their nickame to FA | <given username>
-    // TODO: When signed to a team, replace FA with team abbr
     public class DiscordService : IDiscordService
     {
         private string _discordUrl;
@@ -32,6 +30,7 @@ namespace UCLBackend.Services.Services
             _transactionChannelId = ulong.Parse(_settingRepository.GetSetting("Transaction.ChannelId"));
         }
 
+        #region League Roles
         public async Task AddLeagueRolesToUser(ulong discordId, PlayerLeague league)
         {
             ulong discordRoleId = 0;
@@ -61,7 +60,37 @@ namespace UCLBackend.Services.Services
             await ValidateResponseCode(response);
         }
 
-        // TODO: Remove Free Agent role from user when they sign to a team
+        public async Task RemoveLeagueRoles(ulong discordId, PlayerLeague league)
+        {
+            ulong discordRoleId = 0;
+            switch (league)
+            {
+                case PlayerLeague.Origins:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Origin.RoleId"));
+                    break;
+                case PlayerLeague.Ultra:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Ultra.RoleId"));
+                    break;
+                case PlayerLeague.Elite:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Elite.RoleId"));
+                    break;
+                case PlayerLeague.Superior:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Superior.RoleId"));
+                    break;
+            }
+
+            // Create a new HTTP client
+            var client = new HttpClient();
+            Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
+
+            // Send the request
+            var response = await client.DeleteAsync(uri.ToString());
+            await ValidateResponseCode(response);
+        }
+        #endregion
+
+        #region Franchise Roles
         public async Task AddFranchiseRolesToUser(ulong discordId, PlayerFranchise franchise, PlayerLeague league)
         {
             ulong discordRoleId = 0;
@@ -130,20 +159,6 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
             await ValidateResponseCode(response);
-        }
-
-        public async Task SetFreeAgentNickname(ulong discordId, string nickname)
-        {
-            var discordNickname = $"FA | {nickname}";
-
-            await ChangeUserNickname(discordId, discordNickname);
-        }
-
-        public async Task SetFranchiseNickname(ulong discordId, PlayerFranchise franchise, string nickname)
-        {
-            var discordNickname = $"{franchise.ToString().ToUpper().Substring(0, 3)} | {nickname}";
-
-            await ChangeUserNickname(discordId, discordNickname);
         }
 
         public async Task RemoveFranchiseRoles(ulong discordId, PlayerFranchise franchise, PlayerLeague league)
@@ -215,36 +230,25 @@ namespace UCLBackend.Services.Services
             var response = await client.DeleteAsync(uri.ToString());
             await ValidateResponseCode(response);
         }
+        #endregion
 
-        public async Task RemoveLeagueRoles(ulong discordId, PlayerLeague league)
+        #region Nickname
+        public async Task SetFreeAgentNickname(ulong discordId, string nickname)
         {
-            ulong discordRoleId = 0;
-            switch (league)
-            {
-                case PlayerLeague.Origins:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Origin.RoleId"));
-                    break;
-                case PlayerLeague.Ultra:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Ultra.RoleId"));
-                    break;
-                case PlayerLeague.Elite:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Elite.RoleId"));
-                    break;
-                case PlayerLeague.Superior:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("League.Superior.RoleId"));
-                    break;
-            }
+            var discordNickname = $"FA | {nickname}";
 
-            // Create a new HTTP client
-            var client = new HttpClient();
-            Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
-
-            // Send the request
-            var response = await client.DeleteAsync(uri.ToString());
-            await ValidateResponseCode(response);
+            await ChangeUserNickname(discordId, discordNickname);
         }
 
+        public async Task SetFranchiseNickname(ulong discordId, PlayerFranchise franchise, string nickname)
+        {
+            var discordNickname = $"{franchise.ToString().ToUpper().Substring(0, 3)} | {nickname}";
+
+            await ChangeUserNickname(discordId, discordNickname);
+        }
+        #endregion
+
+        // A value of 1 for issuerDiscordID means the bot is operating autonomously
         public async Task LogTransaction(ulong issuerDiscordID, string message)
         {
             // Create a new HTTP client
@@ -253,6 +257,11 @@ namespace UCLBackend.Services.Services
             client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
             var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}", Encoding.UTF8, "application/json");
+            // Special case when bot operates automatically
+            if (issuerDiscordID == 1)
+            {
+                content = new StringContent($"{{\"content\":\"Bot performed: {message}\"}}", Encoding.UTF8, "application/json");
+            }
 
             // Send the request
             var response = await client.PostAsync(uri.ToString(), content);
