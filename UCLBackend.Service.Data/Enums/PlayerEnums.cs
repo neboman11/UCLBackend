@@ -11,7 +11,7 @@ namespace UCLBackend.Service.Data.Enums
     public enum PlayerFranchise
     {
         Astros,
-        Atlantics,
+        CMM,
         Bison,
         Cobras,
         Gators,

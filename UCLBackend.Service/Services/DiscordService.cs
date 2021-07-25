@@ -99,8 +99,8 @@ namespace UCLBackend.Services.Services
                 case PlayerFranchise.Astros:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Astros.RoleId"));
                     break;
-                case PlayerFranchise.Atlantics:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Atlantics.RoleId"));
+                case PlayerFranchise.CMM:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.CMM.RoleId"));
                     break;
                 case PlayerFranchise.Bison:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Bison.RoleId"));
@@ -169,8 +169,8 @@ namespace UCLBackend.Services.Services
                 case PlayerFranchise.Astros:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Astros.RoleId"));
                     break;
-                case PlayerFranchise.Atlantics:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Atlantics.RoleId"));
+                case PlayerFranchise.CMM:
+                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.CMM.RoleId"));
                     break;
                 case PlayerFranchise.Bison:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Bison.RoleId"));

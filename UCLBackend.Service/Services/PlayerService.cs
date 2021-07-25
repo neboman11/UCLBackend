@@ -319,8 +319,8 @@ namespace UCLBackend.Service.Services
             {
                 case "Astros":
                     return PlayerFranchise.Astros;
-                case "Atlantics":
-                    return PlayerFranchise.Atlantics;
+                case "CMM":
+                    return PlayerFranchise.CMM;
                 case "Bison":
                     return PlayerFranchise.Bison;
                 case "Cobras":
