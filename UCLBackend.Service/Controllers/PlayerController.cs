@@ -45,8 +45,24 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-            await _playerService.UpdateAllMMRs();
-            return Ok();
+                await _playerService.UpdateAllMMRs();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error updating all MMRs");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpPut]
+        [Route("TempUpdateAllMMRs")]
+        public async Task<IActionResult> TempUpdateAllMMRs()
+        {
+            try
+            {
+                await _playerService.TempUpdateAllMMRs();
+                return Ok();
             }
             catch (Exception e)
             {

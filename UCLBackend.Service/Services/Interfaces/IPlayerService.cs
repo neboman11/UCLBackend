@@ -8,6 +8,7 @@ namespace UCLBackend.Service.Services.Interfaces
     {
         Task AddPlayer(AddPlayerRequest request);
         Task UpdateAllMMRs();
+        Task TempUpdateAllMMRs();
         Task SignPlayer(SignPlayerRequest request);
         Task ReleasePlayer(BaseRequest request);
         Task PlayerRankout(BaseRequest request);

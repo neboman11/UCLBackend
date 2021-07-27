@@ -102,6 +102,38 @@ namespace UCLBackend.Service.Services
             _logger.LogInformation("Updated MMRs for all players");
         }
 
+        public async Task TempUpdateAllMMRs()
+        {
+            var players = _playerRepository.GetAllPlayers();
+
+            foreach (var player in players)
+            {
+                if (player.IsFreeAgent.Value)
+                {
+                    try
+                    {
+                        var oldLeague = GetPlayerLeague(player.Salary.Value);
+
+                        var newPlayer = await UpdatePlayerMMR(player);
+                        var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
+                        
+                        await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
+                        await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+
+                        await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
+
+                        _playerRepository.UpdatePlayer(newPlayer);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"Error updating MMR for player {player.Name} ({player.PlayerID})");
+                    }
+                }
+            }
+
+            _logger.LogInformation("Updated MMRs for all players");
+        }
+
         public async Task SignPlayer(SignPlayerRequest request)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
