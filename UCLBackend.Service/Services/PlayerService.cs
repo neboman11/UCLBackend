@@ -276,10 +276,27 @@ namespace UCLBackend.Service.Services
             var mmrs = await _playerRepository.RemoteGetPlayerMMRs(player.PlayerID);
             var doublesMMRs = mmrs.Item1;
             var triplesMMRs = mmrs.Item2;
+            var peakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
+            var currentMMR = doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 > triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1 ? doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 : triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1;
 
-            player.PeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
+            foreach (var account in player.Accounts)
+            {
+                mmrs = await _playerRepository.RemoteGetPlayerMMRs(await _playerRepository.RemoteGetPlayerID(account.Platform, account.AccountName));
+                doublesMMRs = mmrs.Item1;
+                triplesMMRs = mmrs.Item2;
+
+                var tempPeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
+
+                if (tempPeakMMR > peakMMR)
+                {
+                    peakMMR = tempPeakMMR;
+                    currentMMR = doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 > triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1 ? doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 : triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1;
+                }
+            }
+
+            player.PeakMMR = peakMMR;
             player.Salary = ((player.PeakMMR / 50) * 50) / 100.0;
-            player.CurrentMMR = doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 > triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1 ? doublesMMRs.Find(x => x.Item2 == doublesMMRs.Select(x => x.Item2).Max()).Item1 : triplesMMRs.Find(x => x.Item2 == triplesMMRs.Select(x => x.Item2).Max()).Item1;
+            player.CurrentMMR = currentMMR;
 
             return player;
         }
