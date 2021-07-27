@@ -117,8 +117,8 @@ namespace UCLBackend.Service.Services
                         var newPlayer = await UpdatePlayerMMR(player);
                         var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
                         
-                        await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
                         await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+                        await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
 
                         await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
 
@@ -131,7 +131,7 @@ namespace UCLBackend.Service.Services
                 }
             }
 
-            _logger.LogInformation("Updated MMRs for all players");
+            _logger.LogInformation("Temp Updated MMRs for all players");
         }
 
         public async Task SignPlayer(SignPlayerRequest request)
