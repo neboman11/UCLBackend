@@ -49,6 +49,7 @@ namespace UCLBackend.Service.Services
 
             var accounts = CreateAccountsList(request.AltRLTrackerLinks, playerID);
             accounts.Add(new Account{Platform = platform, AccountName = accountName, PlayerID = playerID, IsPrimary = true});
+            // Add the accounts to the player so the MMRs can be fetched
             player.Accounts = accounts;
 
             player = await UpdatePlayerMMR(player);
@@ -56,6 +57,9 @@ namespace UCLBackend.Service.Services
             await _discordService.AddLeagueRolesToUser(player.DiscordID, GetPlayerLeague(player.Salary.Value));
             await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), GetPlayerLeague(player.Salary.Value));
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
+
+            // Remove the accounts from the player so they can be saved to the database
+            player.Accounts = null;
 
             // Save the player to the database last in case something goes wrong
             _playerRepository.AddPlayer(player);
