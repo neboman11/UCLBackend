@@ -296,8 +296,8 @@ namespace UCLBackend.Service.Services
                 {
                     if (!(rlTrackerLink == "" || rlTrackerLink == null))
                     {
-                        var platform = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
-                        var accountName = rlTrackerLink.Split('/').ToList().Last();
+                        var platform = rlTrackerLink.Split('/').ToList().TakeLast(3).First();
+                        var accountName = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
 
                         if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
                         {
