@@ -8,7 +8,7 @@ namespace UCLBackend.Service.Services.Interfaces
     {
         Task AddPlayer(AddPlayerRequest request);
         Task UpdateAllMMRs();
-        Task TempUpdateAllMMRs();
+        Task UpdateSingleMMR(ulong discordID);
         Task SignPlayer(SignPlayerRequest request);
         Task ReleasePlayer(BaseRequest request);
         Task PlayerRankout(BaseRequest request);

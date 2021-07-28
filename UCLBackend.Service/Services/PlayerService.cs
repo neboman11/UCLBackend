@@ -112,44 +112,35 @@ namespace UCLBackend.Service.Services
             _logger.LogInformation("Updated MMRs for all players");
         }
 
-        public async Task TempUpdateAllMMRs()
+        public async Task UpdateSingleMMR(ulong discordID)
         {
-            var players = _playerRepository.GetAllPlayers();
+            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
-            foreach (var player in players)
+            var oldLeague = GetPlayerLeague(player.Salary.Value);
+
+            var newPlayer = await UpdatePlayerMMR(player);
+            var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
+
+            try
             {
-                if (player.IsFreeAgent.Value)
-                {
-                    try
-                    {
-                        var oldLeague = GetPlayerLeague(player.Salary.Value);
-
-                        var newPlayer = await UpdatePlayerMMR(player);
-                        var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
-
-                        try
-                        {
-                            await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogError(e, $"Error removing league role player {player.Name} ({player.PlayerID})");
-                        }
-
-                        await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
-
-                        // await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
-
-                        _playerRepository.UpdatePlayer(newPlayer);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, $"Error updating MMR for player {player.Name} ({player.PlayerID})");
-                    }
-                }
+                await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error removing league role player {player.Name} ({player.PlayerID})");
             }
 
-            _logger.LogInformation("Temp Updated MMRs for all players");
+            await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
+
+
+            if (oldLeague != newLeague)
+            {
+                await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
+            }
+
+            _logger.LogTrace($"Old peak MMR: {player.PeakMMR}, New peak MMR: {newPlayer.PeakMMR}");
+
+            _playerRepository.UpdatePlayer(newPlayer);
         }
 
         public async Task SignPlayer(SignPlayerRequest request)

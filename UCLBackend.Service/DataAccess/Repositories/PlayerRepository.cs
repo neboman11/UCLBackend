@@ -9,6 +9,8 @@ using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.DataAccess.Interfaces;
+using System.Net;
+using System.Threading;
 
 namespace UCLBackend.Service.DataAccess.Repositories
 {
@@ -41,7 +43,14 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
             // Send the request
             var response = await client.GetAsync(uri.ToString());
-            response.EnsureSuccessStatusCode();
+
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                Thread.Sleep(5000);
+                response = await client.GetAsync(uri.ToString());
+            }
+
+            await ValidateResponseCode(response);
 
             var player = JsonConvert.DeserializeObject<GetPlayerIDResponse>(await response.Content.ReadAsStringAsync());
             
@@ -56,7 +65,14 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
             // Send the request
             var response = await client.GetAsync(uri.ToString());
-            response.EnsureSuccessStatusCode();
+
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                Thread.Sleep(5000);
+                response = await client.GetAsync(uri.ToString());
+            }
+
+            await ValidateResponseCode(response);
 
             var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
             
@@ -102,5 +118,16 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.DiscordID == discordID);
         }
+
+        #region Private Methods
+        private async Task ValidateResponseCode(HttpResponseMessage response)
+        {
+            if (((int)response.StatusCode) >= 400)
+            {
+                var responseMessage = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"{response.StatusCode} {response.ReasonPhrase}: {responseMessage}");
+            }
+        }
+        #endregion
     }
 }

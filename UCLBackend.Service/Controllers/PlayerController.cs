@@ -56,17 +56,17 @@ namespace UCLBackend.Service.Controllers
         }
 
         [HttpPut]
-        [Route("TempUpdateAllMMRs")]
-        public async Task<IActionResult> TempUpdateAllMMRs()
+        [Route("UpdateSingleMMR")]
+        public async Task<IActionResult> UpdateSingleMMR([FromQuery] ulong discordID)
         {
             try
             {
-                await _playerService.TempUpdateAllMMRs();
+                await _playerService.UpdateSingleMMR(discordID);
                 return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error updating all MMRs");
+                _logger.LogError(e, "Error single MMR");
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
