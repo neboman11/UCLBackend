@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using System.Net;
 
 // TODO: Move actual sending of requests to private methods (move HttpClient out of functions)
 
@@ -61,7 +62,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.PutAsync(uri.ToString(), null);
@@ -97,7 +98,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.DeleteAsync(uri.ToString());
@@ -176,7 +177,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.PutAsync(uri.ToString(), null);
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.PutAsync(uri.ToString(), null);
@@ -253,7 +254,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.DeleteAsync(uri.ToString());
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.DeleteAsync(uri.ToString());
@@ -297,7 +298,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.PostAsync(uri.ToString(), content);
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.PostAsync(uri.ToString(), content);
@@ -317,7 +318,7 @@ namespace UCLBackend.Services.Services
             // Send the request
             var response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
 
-            while (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
+            while (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Thread.Sleep(5000);
                 response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
