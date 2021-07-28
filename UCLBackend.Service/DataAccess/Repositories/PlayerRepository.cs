@@ -77,36 +77,6 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return (doublesMMRs, triplesMMRs);
         }
 
-        public void UpdatePlayerPeakMMR(string playerID, int peakMMR)
-        {
-            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
-            if (player != null)
-            {
-                player.PeakMMR = peakMMR;
-                _context.SaveChanges();
-            }
-        }
-
-        public void UpdatePlayerCurrentMMR(string playerID, int mmr)
-        {
-            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
-            if (player != null)
-            {
-                player.CurrentMMR = mmr;
-                _context.SaveChanges();
-            }
-        }
-
-        public void UpdatePlayerSalary(string playerID, double salary)
-        {
-            var player = _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
-            if (player != null)
-            {
-                player.Salary = salary;
-                _context.SaveChanges();
-            }
-        }
-
         public List<Player> GetAllPlayers()
         {
             return _context.Players.ToList();
