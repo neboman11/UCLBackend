@@ -11,6 +11,7 @@ using System.Threading;
 using System.Net;
 
 // TODO: Move actual sending of requests to private methods (move HttpClient out of functions)
+// Create a shared class in Data that Discord and Service can use to send requests (built in error handling and retries on 429)
 
 namespace UCLBackend.Services.Services
 {
