@@ -38,6 +38,12 @@ namespace UCLBackend.Service.Services
                 throw new ArgumentException("Main tracker link is malformed");
             }
 
+            // TODO: Move this into an enum or something
+            if (platform != "xbl" && platform != "psn" && platform != "epic" && platform != "steam")
+            {
+                throw new ArgumentException($"Invalid platform: {platform} (in {request.RLTrackerLink})");
+            }
+
             var playerID = await _playerRepository.RemoteGetPlayerID(platform, accountName);
 
             if (_playerRepository.GetPlayer(playerID) != null)
@@ -295,7 +301,12 @@ namespace UCLBackend.Service.Services
 
                         if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
                         {
-                            throw new ArgumentException("Alt tracker link is malformed");
+                            throw new ArgumentException($"Alt tracker link is malformed: {rlTrackerLink}");
+                        }
+
+                        if (platform != "xbl" && platform != "psn" && platform != "epic" && platform != "steam")
+                        {
+                            throw new ArgumentException($"Invalid platform: {platform} (in {rlTrackerLink})");
                         }
 
                         accounts.Add(new Account
