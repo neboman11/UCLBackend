@@ -18,6 +18,11 @@ namespace UCLBackend.Service.DataAccess.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Player>().Property(p => p.IsFreeAgent).HasDefaultValue(true);
+
+            modelBuilder.Entity<Account>(e =>
+            {
+                e.HasIndex(e => new { e.AccountName, e.Platform }).IsUnique();
+            });
         }
     }
 }
