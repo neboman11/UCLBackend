@@ -116,11 +116,19 @@ namespace UCLBackend.Service.Services
 
                         var newPlayer = await UpdatePlayerMMR(player);
                         var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
-                        
-                        await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+
+                        try
+                        {
+                            await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, $"Error removing league role player {player.Name} ({player.PlayerID})");
+                        }
+
                         await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
 
-                        await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
+                        // await _discordService.LogTransaction(1, $"Player {player.Name} was moved from {oldLeague} to {newLeague}");
 
                         _playerRepository.UpdatePlayer(newPlayer);
                     }
