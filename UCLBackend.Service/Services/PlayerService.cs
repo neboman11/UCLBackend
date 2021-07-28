@@ -40,6 +40,11 @@ namespace UCLBackend.Service.Services
 
             var playerID = await _playerRepository.RemoteGetPlayerID(platform, accountName);
 
+            if (_playerRepository.GetPlayer(playerID) != null)
+            {
+                throw new Exception("Player is already in database");
+            }
+
             Player player = new Player
             {
                 DiscordID = request.DiscordID,
@@ -326,7 +331,14 @@ namespace UCLBackend.Service.Services
 
             foreach (var account in player.Accounts)
             {
-                mmrs = await _playerRepository.RemoteGetPlayerMMRs(await _playerRepository.RemoteGetPlayerID(account.Platform, account.AccountName));
+                var playerID = await _playerRepository.RemoteGetPlayerID(account.Platform, account.AccountName);
+
+                if (string.IsNullOrEmpty(playerID))
+                {
+                    throw new Exception("Failed fetching player ID for alt account");
+                }
+
+                mmrs = await _playerRepository.RemoteGetPlayerMMRs(playerID);
                 doublesMMRs = mmrs.Item1;
                 triplesMMRs = mmrs.Item2;
 
