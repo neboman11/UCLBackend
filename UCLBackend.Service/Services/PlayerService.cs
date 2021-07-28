@@ -296,6 +296,7 @@ namespace UCLBackend.Service.Services
                 {
                     if (!(rlTrackerLink == "" || rlTrackerLink == null))
                     {
+                        // TODO: Move splitting and checking to separate function
                         var platform = rlTrackerLink.Split('/').ToList().TakeLast(3).First();
                         var accountName = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
 
