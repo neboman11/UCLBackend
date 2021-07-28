@@ -79,7 +79,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
         public List<Player> GetAllPlayers()
         {
-            return _context.Players.ToList();
+            return _context.Players.Include(p => p.Accounts).ToList();
         }
 
         public Player GetPlayer(string playerID)
