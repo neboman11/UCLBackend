@@ -84,7 +84,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
         public Player GetPlayer(string playerID)
         {
-            return _context.Players.FirstOrDefault(x => x.PlayerID == playerID);
+            return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.PlayerID == playerID);
         }
 
         public void UpdatePlayer(Player player)
@@ -100,7 +100,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
         public Player GetPlayerUsingDiscordID(ulong discordID)
         {
-            return _context.Players.FirstOrDefault(x => x.DiscordID == discordID);
+            return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.DiscordID == discordID);
         }
     }
 }
