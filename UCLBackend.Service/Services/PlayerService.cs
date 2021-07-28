@@ -49,6 +49,7 @@ namespace UCLBackend.Service.Services
 
             var accounts = CreateAccountsList(request.AltRLTrackerLinks, playerID);
             accounts.Add(new Account{Platform = platform, AccountName = accountName, PlayerID = playerID, IsPrimary = true});
+            player.Accounts = accounts;
 
             player = await UpdatePlayerMMR(player);
 
