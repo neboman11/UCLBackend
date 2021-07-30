@@ -211,7 +211,6 @@ namespace UCLBackend.Discord.Modules
             }
         }
 
-        // TODO: Change user field to show username in database
         [Command("info")]
         [Summary("Gets information about a player")]
         public async Task GetPlayerInfo(IUser user)
@@ -220,7 +219,7 @@ namespace UCLBackend.Discord.Modules
             {
                 var player = user.Id;
                 var info = await _playerService.GetPlayerInfo(player);
-                await Context.Channel.SendMessageAsync($"User: {user.Username}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
+                await Context.Channel.SendMessageAsync($"User: {info.Name}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
             }
             catch (Exception e)
             {

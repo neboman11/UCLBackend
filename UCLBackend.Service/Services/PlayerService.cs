@@ -30,19 +30,9 @@ namespace UCLBackend.Service.Services
         public async Task AddPlayer(AddPlayerRequest request)
         {
             // Grab the platform and account name from the tracker url
-            var platform = request.RLTrackerLink.Split('/').ToList().TakeLast(3).First();
-            var accountName = request.RLTrackerLink.Split('/').ToList().TakeLast(2).First();
-
-            if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
-            {
-                throw new ArgumentException("Main tracker link is malformed");
-            }
-
-            // TODO: Move this into an enum or something
-            if (platform != "xbl" && platform != "psn" && platform != "epic" && platform != "steam")
-            {
-                throw new ArgumentException($"Invalid platform: {platform} (in {request.RLTrackerLink})");
-            }
+            var accountParts = GetAccountParts(request.RLTrackerLink);
+            var platform = accountParts.Item1;
+            var accountName = accountParts.Item2;
 
             var playerID = await _playerRepository.RemoteGetPlayerID(platform, accountName);
 
@@ -296,24 +286,12 @@ namespace UCLBackend.Service.Services
                 {
                     if (!(rlTrackerLink == "" || rlTrackerLink == null))
                     {
-                        // TODO: Move splitting and checking to separate function
-                        var platform = rlTrackerLink.Split('/').ToList().TakeLast(3).First();
-                        var accountName = rlTrackerLink.Split('/').ToList().TakeLast(2).First();
-
-                        if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
-                        {
-                            throw new ArgumentException($"Alt tracker link is malformed: {rlTrackerLink}");
-                        }
-
-                        if (platform != "xbl" && platform != "psn" && platform != "epic" && platform != "steam")
-                        {
-                            throw new ArgumentException($"Invalid platform: {platform} (in {rlTrackerLink})");
-                        }
+                        var accountParts = GetAccountParts(rlTrackerLink);
 
                         accounts.Add(new Account
                         {
-                            Platform = platform,
-                            AccountName = accountName,
+                            Platform = accountParts.Item1,
+                            AccountName = accountParts.Item2,
                             PlayerID = PlayerID,
                             IsPrimary = false
                         });
@@ -433,6 +411,26 @@ namespace UCLBackend.Service.Services
             }
 
             await _discordService.LogTransaction(issuerDiscordID, discordMessage);
+        }
+
+        // Return: First is platform, second is account name
+        private (string, string) GetAccountParts(string trackerLink)
+        {
+            var platform = trackerLink.Split('/').ToList().TakeLast(3).First();
+            var accountName = trackerLink.Split('/').ToList().TakeLast(2).First();
+
+            if (string.IsNullOrEmpty(platform) || string.IsNullOrEmpty(accountName))
+            {
+                throw new ArgumentException($"Alt tracker link is malformed: {trackerLink}");
+            }
+
+            // TODO: Move this into an enum or something
+            if (platform != "xbl" && platform != "psn" && platform != "epic" && platform != "steam")
+            {
+                throw new ArgumentException($"Invalid platform: {platform} (in {trackerLink})");
+            }
+
+            return (platform, accountName);
         }
         #endregion
     }

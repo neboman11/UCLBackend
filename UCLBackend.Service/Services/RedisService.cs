@@ -1,11 +1,11 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using StackExchange.Redis;
 using UCLBackend.Service.Services.Interfaces;
 
 namespace UCLBackend.Service.Services
 {
-    // TODO: use async methods
     public class RedisService : IRedisService
     {
         private readonly ConnectionMultiplexer _connection;
@@ -19,20 +19,20 @@ namespace UCLBackend.Service.Services
             _database = _connection.GetDatabase();
         }
 
-        public void StoreValue(string key, string value)
+        public async Task StoreValue(string key, string value)
         {
-            _database.StringSet(key, value);
-            _database.KeyExpire(key, TimeSpan.FromMinutes(60));
+            await _database.StringSetAsync(key, value);
+            await _database.KeyExpireAsync(key, TimeSpan.FromMinutes(60));
         }
 
-        public string RetrieveValue(string key)
+        public async Task<string> RetrieveValue(string key)
         {
-            return _database.StringGet(key);
+            return await _database.StringGetAsync(key);
         }
 
-        public void RemoveValue(string key)
+        public async Task RemoveValue(string key)
         {
-            _database.KeyDelete(key);
+            await _database.KeyDeleteAsync(key);
         }
     }
 }

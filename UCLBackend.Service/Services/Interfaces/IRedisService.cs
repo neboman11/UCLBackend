@@ -4,8 +4,8 @@ namespace UCLBackend.Service.Services.Interfaces
 {
     public interface IRedisService
     {
-        void StoreValue(string key, string value);
-        string RetrieveValue(string key);
-        void RemoveValue(string key);
+        Task StoreValue(string key, string value);
+        Task<string> RetrieveValue(string key);
+        Task RemoveValue(string key);
     }
 }

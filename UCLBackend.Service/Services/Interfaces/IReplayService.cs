@@ -4,8 +4,8 @@ namespace UCLBackend.Service.Services.Interfaces
 {
     public interface IReplayService
     {
-        void BeginUploadProcess(ulong userId);
-        void QueueReplay(ulong userId, string replayFileUrl);
+        Task BeginUploadProcess(ulong userId);
+        Task QueueReplay(ulong userId, string replayFileUrl);
         Task EndUploadProcess(ulong userId);
     }
 }

@@ -34,29 +34,29 @@ namespace UCLBackend.Service.Services
             _settingRepository = settingRepository;
         }
 
-        public void BeginUploadProcess(ulong userId)
+        public async Task BeginUploadProcess(ulong userId)
         {
-            _redisService.StoreValue($"upload_{userId}", $"replay_{userId}");
+            await _redisService.StoreValue($"upload_{userId}", $"replay_{userId}");
         }
 
-        public void QueueReplay(ulong userId, string replayFileUrl)
+        public async Task QueueReplay(ulong userId, string replayFileUrl)
         {
             var urls = _redisService.RetrieveValue($"replay_{userId}");
 
             if (urls == null)
             {
-                _redisService.StoreValue($"replay_{userId}", replayFileUrl);
+                await _redisService.StoreValue($"replay_{userId}", replayFileUrl);
             }
             else
             {
-                _redisService.StoreValue($"replay_{userId}", urls + "," + replayFileUrl);
+                await _redisService.StoreValue($"replay_{userId}", urls + "," + replayFileUrl);
             }
         }
 
         public async Task EndUploadProcess(ulong userId)
         {
-            var urlsKey = _redisService.RetrieveValue($"upload_{userId}");
-            var urls = _redisService.RetrieveValue(urlsKey);
+            var urlsKey = await _redisService.RetrieveValue($"upload_{userId}");
+            var urls = await _redisService.RetrieveValue(urlsKey);
 
             // TODO: Figure out how to get league
             var groupId = await CreateBallchasingGroup($"UCL-{DateTime.Now.ToString(CultureInfo.InvariantCulture)}", PlayerLeague.Origins);
@@ -80,8 +80,8 @@ namespace UCLBackend.Service.Services
             StoreGroupPlayerStandings(stats);
 
             // Delete the key
-            _redisService.RemoveValue($"upload_{userId}");
-            _redisService.RemoveValue($"replay_{userId}");
+            await _redisService.RemoveValue($"upload_{userId}");
+            await _redisService.RemoveValue($"replay_{userId}");
         }
 
         #region Private Methods
