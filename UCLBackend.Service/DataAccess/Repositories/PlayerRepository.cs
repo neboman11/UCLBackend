@@ -11,6 +11,7 @@ using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.DataAccess.Interfaces;
 using System.Net;
 using System.Threading;
+using UCLBackend.Service.Data.Helpers;
 
 namespace UCLBackend.Service.DataAccess.Repositories
 {
@@ -37,44 +38,18 @@ namespace UCLBackend.Service.DataAccess.Repositories
 
         public async Task<string> RemoteGetPlayerID(string platform, string username)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"https://api.tracker.gg/api/v2/rocket-league/standard/profile/{platform}/{username}");
 
-            // Send the request
-            var response = await client.GetAsync(uri.ToString());
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.GetAsync(uri.ToString());
-            }
-
-            await ValidateResponseCode(response);
-
-            var player = JsonConvert.DeserializeObject<GetPlayerIDResponse>(await response.Content.ReadAsStringAsync());
+            var player = await SendWebRequest.GetAsync<GetPlayerIDResponse>(uri, null);
             
             return player.Data.MetaData.PlayerID;
         }
 
         public async Task<(List<(int, DateTime)>, List<(int, DateTime)>)> RemoteGetPlayerMMRs(string playerID)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"https://api.tracker.gg/api/v1/rocket-league/player-history/mmr/{playerID}");
 
-            // Send the request
-            var response = await client.GetAsync(uri.ToString());
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.GetAsync(uri.ToString());
-            }
-
-            await ValidateResponseCode(response);
-
-            var player = JsonConvert.DeserializeObject<GetPlayerMMRsResponse>(await response.Content.ReadAsStringAsync());
+            var player = await SendWebRequest.GetAsync<GetPlayerMMRsResponse>(uri, null);
             
             var doublesMMRs = new List<(int, DateTime)>();
             doublesMMRs.Add((0, DateTime.MinValue));
@@ -118,16 +93,5 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.DiscordID == discordID);
         }
-
-        #region Private Methods
-        private async Task ValidateResponseCode(HttpResponseMessage response)
-        {
-            if (((int)response.StatusCode) >= 400)
-            {
-                var responseMessage = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"{response.StatusCode} {response.ReasonPhrase}: {responseMessage}");
-            }
-        }
-        #endregion
     }
 }

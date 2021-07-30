@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,12 +9,11 @@ using Newtonsoft.Json;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Discord.Requests;
 using UCLBackend.Service.Data.Enums;
+using UCLBackend.Service.Data.Helpers;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.Models.Responses;
 using UCLBackend.Service.Services.Interfaces;
-
-// TODO: Change to usings for all HttpClients and responses (in UCLBackend.Service as well)
 
 namespace UCLBackend.Service.Services
 {
@@ -59,21 +57,18 @@ namespace UCLBackend.Service.Services
             var urls = await _redisService.RetrieveValue(urlsKey);
 
             // TODO: Figure out how to get league
+            // TODO: Naming is different for the group (ask JoSway)
             var groupId = await CreateBallchasingGroup($"UCL-{DateTime.Now.ToString(CultureInfo.InvariantCulture)}", PlayerLeague.Origins);
 
             // Split urls then post them to ballchasing.com
             var urlsArray = urls.Split(',');
             foreach (var url in urlsArray)
             {
-                // Create a new HTTP client
-                var client = new HttpClient();
                 Uri uri = new Uri(url);
 
-                // Send the request
-                var response = await client.GetAsync(uri.ToString());
-                response.EnsureSuccessStatusCode();
+                var file = await SendWebRequest.GetDataAsync(uri, null);
 
-                await SendFileToBallchasing(await response.Content.ReadAsByteArrayAsync(), url.Split('/').Last(), groupId);
+                await SendFileToBallchasing(file, url.Split('/').Last(), groupId);
             }
 
             var stats = await FetchGroupStats(groupId);
@@ -87,31 +82,25 @@ namespace UCLBackend.Service.Services
         #region Private Methods
         private async Task SendFileToBallchasing(byte[] file, string fileName, string groupId)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
+            Uri uri = new Uri($"https://ballchasing.com/api/v2/upload?group={groupId}");
 
             var content = new MultipartFormDataContent("----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
             content.Headers.ContentType.MediaType = "multipart/form-data";
             content.Add(new ByteArrayContent(file), "file", fileName);
 
-            // Send the request
-            var response = await client.PostAsync($"https://ballchasing.com/api/v2/upload?group={groupId}", content);
-            response.EnsureSuccessStatusCode();
+            await SendWebRequest.PostAsync(uri, _ballchasingApiKey, content);
         }
 
         private async Task<string> CreateBallchasingGroup(string groupName, PlayerLeague league)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
-
-            var content = new CreateBallchasingGroupRequest
+            var body = new CreateBallchasingGroupRequest
             {
                 Name = groupName,
                 PlayerIdentification = "by-id",
                 TeamIdentification = "by-distinct-players"
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
             string parentGroup = "";
             switch (league)
@@ -129,22 +118,20 @@ namespace UCLBackend.Service.Services
                     parentGroup = _settingRepository.GetSetting("Ballchasing.Superior.Group");
                     break;
             }
+            Uri uri = new Uri($"https://ballchasing.com/api/groups?parent={parentGroup}");
 
-            // Send the request
-            var response = await client.PostAsync($"https://ballchasing.com/api/groups?parent={parentGroup}", body);
-            response.EnsureSuccessStatusCode();
-            return JsonConvert.DeserializeObject<CreateBallchasingGroupResponse>(await response.Content.ReadAsStringAsync()).Id;
+            var response = await SendWebRequest.PostAsync<CreateBallchasingGroupResponse>(uri, _ballchasingApiKey, content);
+
+            return response.Id;
         }
 
         private async Task<GetBallchasingGroupResponse> FetchGroupStats(string groupId)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", _ballchasingApiKey);
+            Uri uri = new Uri($"https://ballchasing.com/api/groups/{groupId}");
 
-            var response = await client.GetAsync($"https://ballchasing.com/api/groups/{groupId}");
-            response.EnsureSuccessStatusCode();
+            var response = await SendWebRequest.GetAsync<GetBallchasingGroupResponse>(uri, _ballchasingApiKey);
 
-            return JsonConvert.DeserializeObject<GetBallchasingGroupResponse>(await response.Content.ReadAsStringAsync());
+            return response;
         }
 
         private void StoreGroupPlayerStandings(GetBallchasingGroupResponse groupStats)

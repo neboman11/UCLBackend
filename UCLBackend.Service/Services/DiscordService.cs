@@ -3,15 +3,11 @@ using Microsoft.Extensions.Configuration;
 using UCLBackend.Service.Data.Enums;
 using UCLBackend.Service.Services.Interfaces;
 using UCLBackend.Service.DataAccess.Interfaces;
-using System.Net.Http;
 using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Net;
-
-// TODO: Move actual sending of requests to private methods (move HttpClient out of functions)
-// Create a shared class in Data that Discord and Service can use to send requests (built in error handling and retries on 429)
+using System.Net.Http;
+using UCLBackend.Service.Data.Helpers;
 
 namespace UCLBackend.Services.Services
 {
@@ -55,21 +51,9 @@ namespace UCLBackend.Services.Services
                     break;
             }
 
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            // Send the request
-            var response = await client.PutAsync(uri.ToString(), null);
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.PutAsync(uri.ToString(), null);
-            }
-
-            await ValidateResponseCode(response);
+            await SendWebRequest.PutAsync(uri, $"Bot {_discordToken}", null);
         }
 
         public async Task RemoveLeagueRoles(ulong discordId, PlayerLeague league)
@@ -91,21 +75,9 @@ namespace UCLBackend.Services.Services
                     break;
             }
 
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            // Send the request
-            var response = await client.DeleteAsync(uri.ToString());
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.DeleteAsync(uri.ToString());
-            }
-
-            await ValidateResponseCode(response);
+            await SendWebRequest.DeleteAsync(uri, $"Bot {_discordToken}");
         }
         #endregion
 
@@ -170,21 +142,9 @@ namespace UCLBackend.Services.Services
                     break;
             }
 
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            // Send the request
-            var response = await client.PutAsync(uri.ToString(), null);
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.PutAsync(uri.ToString(), null);
-            }
-
-            await ValidateResponseCode(response);
+            await SendWebRequest.PutAsync(uri, $"Bot {_discordToken}", null);
         }
 
         public async Task RemoveFranchiseRoles(ulong discordId, PlayerFranchise franchise, PlayerLeague league)
@@ -247,21 +207,9 @@ namespace UCLBackend.Services.Services
                     break;
             }
 
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}/roles/{discordRoleId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            // Send the request
-            var response = await client.DeleteAsync(uri.ToString());
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.DeleteAsync(uri.ToString());
-            }
-
-            await ValidateResponseCode(response);
+            await SendWebRequest.DeleteAsync(uri, $"Bot {_discordToken}");
         }
         #endregion
 
@@ -284,10 +232,7 @@ namespace UCLBackend.Services.Services
         // A value of 1 for issuerDiscordID means the bot is operating autonomously
         public async Task LogTransaction(ulong issuerDiscordID, string message)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/channels/{_transactionChannelId}/messages");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
             var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}", Encoding.UTF8, "application/json");
             // Special case when bot operates automatically
@@ -296,45 +241,15 @@ namespace UCLBackend.Services.Services
                 content = new StringContent($"{{\"content\":\"Bot performed: {message}\"}}", Encoding.UTF8, "application/json");
             }
 
-            // Send the request
-            var response = await client.PostAsync(uri.ToString(), content);
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.PostAsync(uri.ToString(), content);
-            }
-
-            await ValidateResponseCode(response);
+            await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
         }
 
         #region Private Methods
         private async Task ChangeUserNickname(ulong discordId, string nickname)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
             Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members/{discordId}");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bot {_discordToken}");
 
-            // Send the request
-            var response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
-
-            while (response.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                Thread.Sleep(5000);
-                response = await client.PatchAsync(uri.ToString(), new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
-            }
-
-            await ValidateResponseCode(response);
-        }
-
-        private async Task ValidateResponseCode(HttpResponseMessage response)
-        {
-            if (((int)response.StatusCode) >= 400)
-            {
-                var responseMessage = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"{response.StatusCode} {response.ReasonPhrase}: {responseMessage}");
-            }
+            await SendWebRequest.PatchAsync(uri, $"Bot {_discordToken}", new StringContent($"{{\"nick\":\"{nickname}\"}}", Encoding.UTF8, "application/json"));
         }
         #endregion
     }

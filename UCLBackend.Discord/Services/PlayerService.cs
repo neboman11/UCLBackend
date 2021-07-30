@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using UCLBackend.Service.Data.Requests;
 using UCLBackend.Discord.Interfaces.Services;
 using UCLBackend.Service.Data.Responses;
+using UCLBackend.Service.Data.Helpers;
 
 namespace UCLBackend.Discord.Services
 {
@@ -20,10 +21,9 @@ namespace UCLBackend.Discord.Services
 
         public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playername, string rlTrackerLink, string[] altRLTrackerLinks)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Player/AddPlayer");
             // Set the request content
-            var content = new AddPlayerRequest
+            var body = new AddPlayerRequest
             {
                 IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID,
@@ -32,108 +32,67 @@ namespace UCLBackend.Discord.Services
                 AltRLTrackerLinks = altRLTrackerLinks
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PostAsync($"{_backendUrl}/Player/AddPlayer", body);
-
-            // Check the response
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
-                throw new Exception(error.ErrorMessage);
-            }
+            var response = await SendWebRequest.PostAsync<BaseResponse>(uri, null, content);
         }
 
         public async Task SignPlayer(ulong issuerDiscordID, ulong discordID, string franchiseName)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Player/SignPlayer");
+
             // Set the request content
-            var content = new SignPlayerRequest
+            var body = new SignPlayerRequest
             {
                 IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID,
                 FranchiseName = franchiseName
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Player/SignPlayer", body);
-
-            // Check the response
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
-                throw new Exception(error.ErrorMessage);
-            }
+            await SendWebRequest.PutAsync(uri, null, content);
         }
 
         public async Task ReleasePlayer(ulong issuerDiscordID, ulong discordID)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Player/ReleasePlayer");
+
             // Set the request content
-            var content = new BaseRequest
+            var body = new BaseRequest
             {
                 IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Player/ReleasePlayer", body);
-
-            // Check the response
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
-                throw new Exception(error.ErrorMessage);
-            }
+            await SendWebRequest.PutAsync(uri, null, content);
         }
 
         public async Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Player/PlayerInfo?id={discordID}");
 
-            // Send the request
-            var response = await client.GetAsync($"{_backendUrl}/Player/PlayerInfo?id={discordID}");
-
-            // Check the response
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
-                throw new Exception(error.ErrorMessage);
-            }
+            var response = await SendWebRequest.GetAsync<PlayerInfoResponse>(uri, null);
             
-            return JsonConvert.DeserializeObject<PlayerInfoResponse>(await response.Content.ReadAsStringAsync());
+            return response;
         }
 
         public async Task PlayerRankout(ulong issuerDiscordID, ulong discordID)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Player/PlayerRankout");
+
             // Set the request content
-            var content = new BaseRequest
+            var body = new BaseRequest
             {
                 IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Player/PlayerRankout", body);
-
-            // Check the response
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = JsonConvert.DeserializeObject<BaseResponse>(await response.Content.ReadAsStringAsync());
-                throw new Exception(error.ErrorMessage);
-            }
+            await SendWebRequest.PutAsync(uri, null, content);
         }
     }
 }

@@ -4,9 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UCLBackend.Discord.Interfaces.Services;
+using UCLBackend.Service.Data.Helpers;
 using UCLBackend.Service.Data.Requests;
-
-// TODO: Change to usings for all HttpClients and responses (in UCLBackend.Service as well)
 
 namespace UCLBackend.Discord.Services
 {
@@ -21,54 +20,48 @@ namespace UCLBackend.Discord.Services
 
         public async Task BeginUploadProcess(ulong userId)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Replay/BeginUpload");
+
             // Set the request content
-            var content = new BaseRequest
+            var body = new BaseRequest
             {
                 DiscordID = userId
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Replay/BeginUpload", body);
-            response.EnsureSuccessStatusCode();
+            await SendWebRequest.PutAsync(uri, null, content);
         }
 
         public async Task QueueReplay(ulong userId, string replayFileUrl)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Replay/QueueReplay");
+
             // Set the request content
-            var content = new QueueReplayRequest
+            var body = new QueueReplayRequest
             {
                 DiscordID = userId,
                 ReplayFileUrl = replayFileUrl
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Replay/QueueReplay", body);
-            response.EnsureSuccessStatusCode();
+            await SendWebRequest.PutAsync(uri, null, content);
         }
 
         public async Task EndUploadProcess(ulong userId)
         {
-            // Create a new HTTP client
-            var client = new HttpClient();
+            Uri uri = new Uri($"{_backendUrl}/Replay/EndUpload");
+
             // Set the request content
-            var content = new BaseRequest
+            var body = new BaseRequest
             {
                 DiscordID = userId
             };
 
-            var body = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            // Send the request
-            var response = await client.PutAsync($"{_backendUrl}/Replay/EndUpload", body);
-            response.EnsureSuccessStatusCode();
+            await SendWebRequest.PutAsync(uri, null, content);
         }
     }
 }
