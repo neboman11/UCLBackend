@@ -9,7 +9,10 @@
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="NewtonSoft.Json" Version="13.0.1" />
-    <PackageReference Include="UCLBackend.Service.Data" Version="1.0.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UCLBackend.Service.Data\UCLBackend.Service.Data.csproj" />
   </ItemGroup>
 
 </Project>

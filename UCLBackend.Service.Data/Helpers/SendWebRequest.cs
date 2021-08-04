@@ -4,6 +4,8 @@ using System.Net.Http;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UCLBackend.Service.Data.Responses;
+using UCLBackend.Service.Data.Exceptions;
 
 namespace UCLBackend.Service.Data.Helpers
 {
@@ -29,7 +31,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.GetAsync(uri.ToString());
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 T result = JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
 
@@ -59,7 +61,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.GetAsync(uri.ToString());
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 var result = await response.Content.ReadAsByteArrayAsync();
 
@@ -89,7 +91,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.PostAsync(uri.ToString(), content);
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 response.Dispose();
             }
@@ -115,7 +117,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.PostAsync(uri.ToString(), content);
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 T result = JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
 
@@ -145,7 +147,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.PatchAsync(uri.ToString(), content);
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 response.Dispose();
             }
@@ -171,7 +173,7 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.PutAsync(uri.ToString(), content);
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 response.Dispose();
             }
@@ -197,19 +199,28 @@ namespace UCLBackend.Service.Data.Helpers
                     response = await client.DeleteAsync(uri.ToString());
                 }
 
-                await ValidateResponseCode(response);
+                await ValidateResponseCode(uri.Host, response);
 
                 response.Dispose();
             }
         }
 
-        // TODO: Find way to error messages from BaseResponse on internal errors
-        private static async Task ValidateResponseCode(HttpResponseMessage response)
+        private static async Task ValidateResponseCode(string host, HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
                 var responseMessage = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"{response.StatusCode} {response.ReasonPhrase}: {responseMessage}");
+
+                var responseObj = JsonConvert.DeserializeObject<BaseResponse>(responseMessage);
+
+                if(string.IsNullOrEmpty(responseObj.ErrorMessage))
+                {
+                    throw new HttpRequestException($"{host} gave response: {response.ReasonPhrase} - {responseMessage}");
+                }
+                else
+                {
+                    throw new UCLException(responseObj.ErrorMessage);
+                }
             }
         }
     }

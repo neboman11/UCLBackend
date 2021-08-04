@@ -90,6 +90,7 @@ namespace UCLBackend.Service.Services
 
                         if (oldLeague != newLeague)
                         {
+                            // TODO: Change franchise roles as well
                             await _discordService.AddLeagueRolesToUser(player.DiscordID, newLeague);
                             await _discordService.RemoveLeagueRoles(player.DiscordID, oldLeague);
 
