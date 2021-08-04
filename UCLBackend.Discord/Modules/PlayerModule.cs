@@ -14,8 +14,8 @@ namespace UCLBackend.Discord.Modules
         private readonly ILogger _logger;
         private readonly IPlayerService _playerService;
         private readonly Dictionary<string, ulong> _roleIds;
-        private readonly List<string> _directorRoles = new List<string> {"DIRECTORS_ROLEID", "MARKETING_DIRECTOR_ROLEID", "ADMISSIONS_DIRECTOR_ROLEID", "STATS_DIRECTOR_ROLEID"};
-        private readonly List<string> _leagueOperatorRoles = new List<string> {"LEAGUE_OPERATOR_ROLEID", "ORIGINS_LEAGUE_OPERATOR_ROLEID", "ULTRA_LEAGUE_OPERATOR_ROLEID", "ELITE_LEAGUE_OPERATOR_ROLEID", "SUPERIOR_LEAGUE_OPERATOR_ROLEID"};
+        private static readonly List<string> _directorRoles = new List<string> {"DIRECTORS_ROLEID", "MARKETING_DIRECTOR_ROLEID", "ADMISSIONS_DIRECTOR_ROLEID", "STATS_DIRECTOR_ROLEID"};
+        private static readonly List<string> _leagueOperatorRoles = new List<string> {"LEAGUE_OPERATOR_ROLEID", "ORIGINS_LEAGUE_OPERATOR_ROLEID", "ULTRA_LEAGUE_OPERATOR_ROLEID", "ELITE_LEAGUE_OPERATOR_ROLEID", "SUPERIOR_LEAGUE_OPERATOR_ROLEID"};
 
         public PlayerModule(ILogger logger, IPlayerService playerService)
         {

@@ -27,10 +27,10 @@ namespace UCLBackend.Service.Services
             _logger = logger;
         }
 
-        public async Task AddPlayer(AddPlayerRequest request)
+        public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playerName, string rlTrackerLink, string[] altRLTrackerLinks)
         {
             // Grab the platform and account name from the tracker url
-            var accountParts = GetAccountParts(request.RLTrackerLink);
+            var accountParts = GetAccountParts(rlTrackerLink);
             var platform = accountParts.Item1;
             var accountName = accountParts.Item2;
 
@@ -43,12 +43,12 @@ namespace UCLBackend.Service.Services
 
             Player player = new Player
             {
-                DiscordID = request.DiscordID,
-                Name = request.PlayerName,
+                DiscordID = discordID,
+                Name = playerName,
                 PlayerID = playerID
             };
 
-            var accounts = CreateAccountsList(request.AltRLTrackerLinks, playerID);
+            var accounts = CreateAccountsList(altRLTrackerLinks, playerID);
             accounts.Add(new Account{Platform = platform, AccountName = accountName, PlayerID = playerID, IsPrimary = true});
             // Add the accounts to the player so the MMRs can be fetched
             player.Accounts = accounts;
@@ -70,7 +70,7 @@ namespace UCLBackend.Service.Services
                 _playerRepository.AddAccount(account);
             }
 
-            await LogTransaction(request.IssuerDiscordID, $"Added player {player.Name}");
+            await LogTransaction(issuerDiscordID, $"Added player {player.Name}");
         }
 
         public async Task UpdateAllMMRs()
@@ -141,9 +141,9 @@ namespace UCLBackend.Service.Services
             _playerRepository.UpdatePlayer(newPlayer);
         }
 
-        public async Task SignPlayer(SignPlayerRequest request)
+        public async Task SignPlayer(ulong issuerDiscordID, ulong discordID, string franchiseName)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
             if (player == null)
             {
@@ -155,7 +155,7 @@ namespace UCLBackend.Service.Services
                 throw new ArgumentException("Player is already signed");
             }
 
-            var team = _playerRepository.GetTeam(request.FranchiseName, GetPlayerLeague(player.Salary.Value));
+            var team = _playerRepository.GetTeam(franchiseName, GetPlayerLeague(player.Salary.Value));
 
             if (team == null)
             {
@@ -172,12 +172,12 @@ namespace UCLBackend.Service.Services
 
             _playerRepository.UpdatePlayer(player);
 
-            await LogTransaction(request.IssuerDiscordID, $"Signed player {player.Name} to {request.FranchiseName}");
+            await LogTransaction(issuerDiscordID, $"Signed player {player.Name} to {franchiseName}");
         }
 
-        public async Task ReleasePlayer(BaseRequest request)
+        public async Task ReleasePlayer(ulong issuerDiscordID, ulong discordID)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
             if (player == null)
             {
@@ -202,12 +202,12 @@ namespace UCLBackend.Service.Services
 
             _playerRepository.UpdatePlayer(player);
 
-            await LogTransaction(request.IssuerDiscordID, $"Released player {player.Name}");
+            await LogTransaction(issuerDiscordID, $"Released player {player.Name}");
         }
 
-        public async Task PlayerRankout(BaseRequest request)
+        public async Task PlayerRankout(ulong issuerDiscordID, ulong discordID)
         {
-            var player = _playerRepository.GetPlayerUsingDiscordID(request.DiscordID);
+            var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
             if (player == null)
             {
@@ -228,24 +228,24 @@ namespace UCLBackend.Service.Services
             
             if (newSalary >= superiorMinSalary - 0.5 && GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior)
             {
-                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Superior);
-                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Superior);
+                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
             }
             else if (newSalary >= eliteMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
             {
-                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Elite);
-                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Elite);
+                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
             }
             else if (newSalary >= ultraMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Ultra || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
             {
-                await _discordService.AddLeagueRolesToUser(request.DiscordID, PlayerLeague.Ultra);
-                await _discordService.RemoveLeagueRoles(request.DiscordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Ultra);
+                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
@@ -257,7 +257,7 @@ namespace UCLBackend.Service.Services
 
             _playerRepository.UpdatePlayer(player);
 
-            await LogTransaction(request.IssuerDiscordID, $"Player {player.Name} ranked out");
+            await LogTransaction(issuerDiscordID, $"Player {player.Name} ranked out");
         }
 
         public PlayerInfoResponse GetPlayerInfo(ulong discordID)

@@ -25,11 +25,11 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPost]
         [Route("AddPlayer")]
-        public async Task<IActionResult> AddPlayer([FromBody] AddPlayerRequest player)
+        public async Task<IActionResult> AddPlayer([FromBody] AddPlayerRequest request)
         {
             try
             {
-                await _playerService.AddPlayer(player);
+                await _playerService.AddPlayer(request.IssuerDiscordID, request.DiscordID, request.PlayerName, request.RLTrackerLink, request.AltRLTrackerLinks);
                 return Ok();
             }
             catch (Exception e)
@@ -77,7 +77,7 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-                await _playerService.SignPlayer(request);
+                await _playerService.SignPlayer(request.IssuerDiscordID, request.DiscordID, request.FranchiseName);
                 return Ok();
             }
             catch (Exception e)
@@ -93,7 +93,7 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-                await _playerService.ReleasePlayer(request);
+                await _playerService.ReleasePlayer(request.IssuerDiscordID, request.DiscordID);
                 return Ok();
             }
             catch (Exception e)
@@ -109,7 +109,7 @@ namespace UCLBackend.Service.Controllers
         {
             try
             {
-                await _playerService.PlayerRankout(request);
+                await _playerService.PlayerRankout(request.IssuerDiscordID, request.DiscordID);
                 return Ok();
             }
             catch (Exception e)
