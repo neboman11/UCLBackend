@@ -244,6 +244,15 @@ namespace UCLBackend.Services.Services
             await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
         }
 
+        public async Task SendMessage(ulong channelId, string message)
+        {
+            Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
+
+            var content = new StringContent($"{{\"content\":\"{message}\"}}", Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
+        }
+
         #region Private Methods
         private async Task ChangeUserNickname(ulong discordId, string nickname)
         {

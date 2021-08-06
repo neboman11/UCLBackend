@@ -6,8 +6,9 @@ namespace UCLBackend.Discord.Interfaces.Services
 {
     public interface IDraftService
     {
-        Task StartDraft(ulong issuerDiscordID);
+        Task StartDraft(ulong issuerDiscordID, string league);
         Task Draft(ulong issuerDiscordID, ulong discordID, PlayerFranchise franchise);
         Task NextRound(ulong issuerDiscordID);
+        Task PickSkip(ulong issuerDiscordID);
     }
 }

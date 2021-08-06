@@ -55,6 +55,7 @@ namespace UCLBackend.Service
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IDiscordService, DiscordService>();
             services.AddScoped<IReplayService, ReplayService>();
+            services.AddScoped<IDraftService, DraftService>();
             #endregion
 
             #region Repositories

@@ -12,5 +12,6 @@ namespace UCLBackend.Service.Services.Interfaces
         Task RemoveFranchiseRoles(ulong discordId, PlayerFranchise franchise, PlayerLeague league);
         Task RemoveLeagueRoles(ulong discordId, PlayerLeague league);
         Task LogTransaction(ulong issuerDiscordID, string message);
+        Task SendMessage(ulong channelId, string message);
     }
 }

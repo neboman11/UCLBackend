@@ -56,6 +56,7 @@ namespace UCLBackend.Discord
             map.AddScoped<ILogger, DiscordLogger>();
             map.AddScoped<IPlayerService, PlayerService>();
             map.AddScoped<IReplayService, ReplayService>();
+            map.AddScoped<IDraftService, DraftService>();
             #endregion
 
             return map.BuildServiceProvider();

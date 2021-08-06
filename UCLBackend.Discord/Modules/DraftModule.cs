@@ -56,7 +56,7 @@ namespace UCLBackend.Discord.Modules
 
         [Command("startdraft")]
         [Summary("Starts the draft process for a season")]
-        public async Task StartDraft()
+        public async Task StartDraft(string league)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace UCLBackend.Discord.Modules
                     return;
                 }
 
-                await _draftService.StartDraft(Context.Message.Author.Id);
+                await _draftService.StartDraft(Context.Message.Author.Id, league);
                 await Context.Channel.SendMessageAsync($"Season 3 Draft has begun");
             }
             catch (Exception e)
@@ -165,6 +165,35 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while starting the next round of the draft.");
+                await Context.Channel.SendMessageAsync(e.Message);
+            }
+        }
+
+        [Command("pickskip")]
+        [Summary("Skips the pick for a franchise")]
+        public async Task PickSkip()
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
+                if (!userRoles.ToList().Any(x => x.Id == _roleIds["OWNER_ROLEID"]))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _draftService.PickSkip(Context.Message.Author.Id);
+                await Context.Channel.SendMessageAsync($"Skipping current pick");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while skipping current pick.");
                 await Context.Channel.SendMessageAsync(e.Message);
             }
         }

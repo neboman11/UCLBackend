@@ -19,14 +19,15 @@ namespace UCLBackend.Discord.Services
             _backendUrl = Environment.GetEnvironmentVariable("BACKEND_URL");
         }
 
-        public async Task StartDraft(ulong issuerDiscordID)
+        public async Task StartDraft(ulong issuerDiscordID, string league)
         {
             Uri uri = new Uri($"{_backendUrl}/Draft/StartDraft");
 
             // Set the request content
-            var body = new BaseRequest
+            var body = new StartDraftRequest
             {
-                IssuerDiscordID = issuerDiscordID
+                IssuerDiscordID = issuerDiscordID,
+                League = Enum.Parse<PlayerLeague>(league)
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
@@ -54,6 +55,21 @@ namespace UCLBackend.Discord.Services
         public async Task NextRound(ulong issuerDiscordID)
         {
             Uri uri = new Uri($"{_backendUrl}/Draft/NextRound");
+
+            // Set the request content
+            var body = new BaseRequest
+            {
+                IssuerDiscordID = issuerDiscordID
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PutAsync(uri, null, content);
+        }
+
+        public async Task PickSkip(ulong issuerDiscordID)
+        {
+            Uri uri = new Uri($"{_backendUrl}/Draft/PickSkip");
 
             // Set the request content
             var body = new BaseRequest

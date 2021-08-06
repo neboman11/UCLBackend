@@ -21,9 +21,9 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPost]
         [Route("StartDraft")]
-        public async Task StartDraft([FromBody] BaseRequest request)
+        public async Task StartDraft([FromBody] StartDraftRequest request)
         {
-            await _draftService.StartDraft(request.IssuerDiscordID);
+            await _draftService.StartDraft(request.IssuerDiscordID, request.League);
         }
 
         [HttpPost]
