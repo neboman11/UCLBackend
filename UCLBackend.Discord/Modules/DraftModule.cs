@@ -103,7 +103,7 @@ namespace UCLBackend.Discord.Modules
                 }
 
                 // This method of determining the league sucks
-                await _draftService.Draft(Context.Message.Author.Id, discordID, _roleToFranchiseMap[_roleIds.Where(x => _roleToFranchiseMap.ContainsKey(x.Key)).First().Key]);
+                await _draftService.Draft(Context.Message.Author.Id, discordID, _roleToFranchiseMap[_roleIds.Where(x => x.Key != "GM_ROLEID" && x.Key != "AGM_ROLEID" && x.Key != "FRANCHISE_OWNER_ROLEID").Where(x => userRoles.ToList().Select(y => y.Id).Contains(x.Value)).First().Key]);
             }
             catch (Exception e)
             {

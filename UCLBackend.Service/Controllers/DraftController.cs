@@ -39,5 +39,12 @@ namespace UCLBackend.Service.Controllers
         {
             await _draftService.NextRound(request.IssuerDiscordID);
         }
+
+        [HttpPut]
+        [Route("PickSkip")]
+        public async Task PickSkip([FromBody] BaseRequest request)
+        {
+            await _draftService.PickSkip(request.IssuerDiscordID);
+        }
     }
 }

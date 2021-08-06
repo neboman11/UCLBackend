@@ -213,7 +213,7 @@ namespace UCLBackend.Service.Data.Helpers
 
                 var responseObj = JsonConvert.DeserializeObject<BaseResponse>(responseMessage);
 
-                if(string.IsNullOrEmpty(responseObj.ErrorMessage))
+                if(string.IsNullOrEmpty(responseObj?.ErrorMessage))
                 {
                     throw new HttpRequestException($"{host} gave response: {response.ReasonPhrase} - {responseMessage}");
                 }
