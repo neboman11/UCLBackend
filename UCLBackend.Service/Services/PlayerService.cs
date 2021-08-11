@@ -20,7 +20,8 @@ namespace UCLBackend.Service.Services
         private readonly ISettingRepository _settingRepository;
         private readonly IDiscordService _discordService;
         private readonly ILogger<PlayerService> _logger;
-        private ulong _managementChannelId;
+        private Dictionary<PlayerLeague, ulong> _leagueChannelIds;
+        private ulong _freeAgentRosterChannelId;
 
         public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, ILogger<PlayerService> logger)
         {
@@ -29,7 +30,14 @@ namespace UCLBackend.Service.Services
             _discordService = discordService;
             _logger = logger;
 
-            _managementChannelId = ulong.Parse(_settingRepository.GetSetting("Management.ChannelId"));
+            _leagueChannelIds = new Dictionary<PlayerLeague, ulong>()
+            {
+                {PlayerLeague.Origins, ulong.Parse(_settingRepository.GetSetting("Roster.Origins.ChannelId"))},
+                {PlayerLeague.Ultra, ulong.Parse(_settingRepository.GetSetting("Roster.Ultra.ChannelId"))},
+                {PlayerLeague.Elite, ulong.Parse(_settingRepository.GetSetting("Roster.Elite.ChannelId"))},
+                {PlayerLeague.Superior, ulong.Parse(_settingRepository.GetSetting("Roster.Superior.ChannelId"))}
+            };
+            _freeAgentRosterChannelId = ulong.Parse(_settingRepository.GetSetting("Roster.FreeAgent.ChannelId"));
         }
 
         public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playerName, string rlTrackerLink, string[] altRLTrackerLinks)
@@ -298,7 +306,7 @@ namespace UCLBackend.Service.Services
                 }
                 discordMessage.AppendLine("```");
 
-                await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
+                await _discordService.SendEmbed(_freeAgentRosterChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
             }
         }
 
@@ -306,7 +314,7 @@ namespace UCLBackend.Service.Services
         {
             foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
             {
-                var teamsInLeague = _playerRepository.TeamsByLeague(league.ToString());
+                var teamsInLeague = _playerRepository.TeamsByLeague(league.ToString()).OrderBy(x => x.TeamName);
 
                 foreach (var team in teamsInLeague)
                 {
@@ -319,7 +327,7 @@ namespace UCLBackend.Service.Services
                     }
                     discordMessage.AppendLine("```");
 
-                    await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
+                    await _discordService.SendEmbed(_leagueChannelIds[league], new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
                 }
             }
         }

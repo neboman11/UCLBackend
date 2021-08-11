@@ -156,7 +156,7 @@ namespace UCLBackend.Service.Migrations
             modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Player", b =>
                 {
                     b.HasOne("UCLBackend.Service.DataAccess.Models.Team", "Team")
-                        .WithMany()
+                        .WithMany("Players")
                         .HasForeignKey("TeamID");
 
                     b.Navigation("Team");
@@ -174,6 +174,11 @@ namespace UCLBackend.Service.Migrations
             modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Player", b =>
                 {
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("UCLBackend.Service.DataAccess.Models.Team", b =>
+                {
+                    b.Navigation("Players");
                 });
 #pragma warning restore 612, 618
         }
