@@ -18,5 +18,6 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         Team GetTeam(string teamName, PlayerLeague league);
         Player GetPlayerUsingDiscordID(ulong discordID);
         List<Player> GetFreeAgents();
+        List<Team> TeamsByLeague(string league);
     }
 }

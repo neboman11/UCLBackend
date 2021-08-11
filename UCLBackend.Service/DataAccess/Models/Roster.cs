@@ -10,6 +10,6 @@ namespace UCLBackend.Service.DataAccess.Models
         public string League { get; set; }
         public string TeamName { get; set; }
         public string Conference { get; set; }
-        List<Player> Players { get; set; }
+        public List<Player> Players { get; set; }
     }
 }

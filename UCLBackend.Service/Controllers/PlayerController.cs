@@ -153,5 +153,21 @@ namespace UCLBackend.Service.Controllers
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
+
+        [HttpGet]
+        [Route("Roster")]
+        public async Task<IActionResult> Roster()
+        {
+            try
+            {
+                await _playerService.Roster();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
     }
 }

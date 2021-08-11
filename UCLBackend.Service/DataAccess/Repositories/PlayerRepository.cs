@@ -98,5 +98,10 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Players.Where(x => x.IsFreeAgent.Value).ToList();
         }
+
+        public List<Team> TeamsByLeague(string league)
+        {
+            return _context.Roster.Include(x => x.Players).Where(x => x.League == league).ToList();
+        }
     }
 }

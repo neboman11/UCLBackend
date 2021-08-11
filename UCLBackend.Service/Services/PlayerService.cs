@@ -54,7 +54,7 @@ namespace UCLBackend.Service.Services
             };
 
             var accounts = CreateAccountsList(altRLTrackerLinks, playerID);
-            accounts.Add(new Account{Platform = platform, AccountName = accountName, PlayerID = playerID, IsPrimary = true});
+            accounts.Add(new Account { Platform = platform, AccountName = accountName, PlayerID = playerID, IsPrimary = true });
             // Add the accounts to the player so the MMRs can be fetched
             player.Accounts = accounts;
 
@@ -230,7 +230,7 @@ namespace UCLBackend.Service.Services
 
             var newPeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
             var newSalary = ((newPeakMMR / 50) * 50) / 100.0;
-            
+
             if (newSalary >= superiorMinSalary - 0.5 && GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior)
             {
                 await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Superior);
@@ -284,18 +284,44 @@ namespace UCLBackend.Service.Services
 
         public async Task FreeAgentsList()
         {
-            var freeAgents = _playerRepository.GetFreeAgents().OrderBy(x => x.Salary).ThenBy(x => x.Name);
+            var freeAgents = _playerRepository.GetFreeAgents().OrderBy(x => x.Salary).ThenBy(x => x.Name).ToList();
+            var playersByLeague = SeparatePlayersByLeague(freeAgents);
 
-            var discordMessage = new StringBuilder();
-            discordMessage.AppendLine("```");
-
-            foreach (var player in freeAgents)
+            foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
             {
-                discordMessage.AppendLine(player.Name.PadRight(15) + player.Salary.ToString().PadLeft(4));
-            }
-            discordMessage.AppendLine("```");
+                var discordMessage = new StringBuilder();
+                discordMessage.AppendLine("```");
 
-            await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = "Free Agents", Description = discordMessage.ToString() });
+                foreach (var player in playersByLeague[league])
+                {
+                    discordMessage.AppendLine(player.Name.PadRight(18) + player.Salary.ToString().PadLeft(4));
+                }
+                discordMessage.AppendLine("```");
+
+                await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
+            }
+        }
+
+        public async Task Roster()
+        {
+            foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
+            {
+                var teamsInLeague = _playerRepository.TeamsByLeague(league.ToString());
+
+                foreach (var team in teamsInLeague)
+                {
+                    var discordMessage = new StringBuilder();
+                    discordMessage.AppendLine("```");
+
+                    foreach (var player in team.Players)
+                    {
+                        discordMessage.AppendLine(player.Name.PadRight(15) + player.Salary.ToString().PadLeft(4));
+                    }
+                    discordMessage.AppendLine("```");
+
+                    await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
+                }
+            }
         }
 
         #region Private Methods
@@ -454,6 +480,25 @@ namespace UCLBackend.Service.Services
             }
 
             return (platform, accountName);
+        }
+
+        private Dictionary<PlayerLeague, List<Player>> SeparatePlayersByLeague(List<Player> players)
+        {
+            var playerDict = new Dictionary<PlayerLeague, List<Player>>();
+
+            // Initialize dictionary
+            foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
+            {
+                playerDict[league] = new List<Player>();
+            }
+
+            foreach (var player in players)
+            {
+                var league = GetPlayerLeague(player.Salary.Value);
+                playerDict[league].Add(player);
+            }
+
+            return playerDict;
         }
         #endregion
     }
