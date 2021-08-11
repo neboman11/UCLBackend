@@ -8,6 +8,9 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using UCLBackend.Service.Data.Helpers;
+using UCLBackend.Service.Data.Discord;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace UCLBackend.Services.Services
 {
@@ -232,16 +235,14 @@ namespace UCLBackend.Services.Services
         // A value of 1 for issuerDiscordID means the bot is operating autonomously
         public async Task LogTransaction(ulong issuerDiscordID, string message)
         {
-            Uri uri = new Uri($"{_discordUrl}/channels/{_transactionChannelId}/messages");
-
-            var content = new StringContent($"{{\"content\":\"{issuerDiscordID} performed: {message}\"}}", Encoding.UTF8, "application/json");
+            string discordMessage = $"{issuerDiscordID} performed: {message}";
             // Special case when bot operates automatically
             if (issuerDiscordID == 1)
             {
-                content = new StringContent($"{{\"content\":\"Bot performed: {message}\"}}", Encoding.UTF8, "application/json");
+                discordMessage = $"Bot performed: {message}";
             }
 
-            await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
+            await SendMessage(_transactionChannelId, discordMessage);
         }
 
         public async Task SendMessage(ulong channelId, string message)
@@ -249,6 +250,20 @@ namespace UCLBackend.Services.Services
             Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
 
             var content = new StringContent($"{{\"content\":\"{message}\"}}", Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
+        }
+
+        public async Task SendEmbed(ulong channelId, Embed embed)
+        {
+            Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
+
+            var message = new Message()
+            {
+                Embeds = new List<Embed>() { embed }
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json");
 
             await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
         }

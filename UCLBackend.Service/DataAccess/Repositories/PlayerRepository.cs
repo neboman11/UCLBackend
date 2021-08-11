@@ -93,5 +93,10 @@ namespace UCLBackend.Service.DataAccess.Repositories
         {
             return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.DiscordID == discordID);
         }
+
+        public List<Player> GetFreeAgents()
+        {
+            return _context.Players.Where(x => x.IsFreeAgent.Value).ToList();
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace UCLBackend.Service.Services.Interfaces
         Task ReleasePlayer(ulong issuerDiscordID, ulong discordID);
         Task PlayerRankout(ulong issuerDiscordID, ulong discordID);
         PlayerInfoResponse GetPlayerInfo(ulong discordID);
+        Task FreeAgentsList();
     }
 }

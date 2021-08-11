@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using UCLBackend.Service.Data.Discord;
 using UCLBackend.Service.Data.Enums;
 
 namespace UCLBackend.Service.Services.Interfaces
@@ -13,5 +14,6 @@ namespace UCLBackend.Service.Services.Interfaces
         Task RemoveLeagueRoles(ulong discordId, PlayerLeague league);
         Task LogTransaction(ulong issuerDiscordID, string message);
         Task SendMessage(ulong channelId, string message);
+        Task SendEmbed(ulong channelId, Embed embed);
     }
 }

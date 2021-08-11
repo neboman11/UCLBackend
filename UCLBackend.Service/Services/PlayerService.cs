@@ -9,6 +9,8 @@ using UCLBackend.Service.Data.Enums;
 using System;
 using UCLBackend.Service.Data.Responses;
 using Microsoft.Extensions.Logging;
+using System.Text;
+using UCLBackend.Service.Data.Discord;
 
 namespace UCLBackend.Service.Services
 {
@@ -18,6 +20,7 @@ namespace UCLBackend.Service.Services
         private readonly ISettingRepository _settingRepository;
         private readonly IDiscordService _discordService;
         private readonly ILogger<PlayerService> _logger;
+        private ulong _managementChannelId;
 
         public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, ILogger<PlayerService> logger)
         {
@@ -25,6 +28,8 @@ namespace UCLBackend.Service.Services
             _settingRepository = settingRepository;
             _discordService = discordService;
             _logger = logger;
+
+            _managementChannelId = ulong.Parse(_settingRepository.GetSetting("Management.ChannelId"));
         }
 
         public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playerName, string rlTrackerLink, string[] altRLTrackerLinks)
@@ -275,6 +280,22 @@ namespace UCLBackend.Service.Services
                 PeakMMR = player.PeakMMR.Value,
                 CurrentMMR = player.CurrentMMR.Value
             };
+        }
+
+        public async Task FreeAgentsList()
+        {
+            var freeAgents = _playerRepository.GetFreeAgents().OrderBy(x => x.Salary).ThenBy(x => x.Name);
+
+            var discordMessage = new StringBuilder();
+            discordMessage.AppendLine("```");
+
+            foreach (var player in freeAgents)
+            {
+                discordMessage.AppendLine(player.Name.PadRight(15) + player.Salary.ToString().PadLeft(4));
+            }
+            discordMessage.AppendLine("```");
+
+            await _discordService.SendEmbed(_managementChannelId, new Embed() { Title = "Free Agents", Description = discordMessage.ToString() });
         }
 
         #region Private Methods

@@ -134,5 +134,24 @@ namespace UCLBackend.Service.Controllers
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
+
+        // TODO: Create route to add alt accounts to a user
+        // TODO: Create route to modify main account of user
+
+        [HttpGet]
+        [Route("FreeAgentsList")]
+        public async Task<IActionResult> FreeAgentsList()
+        {
+            try
+            {
+                await _playerService.FreeAgentsList();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting free agents list");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
     }
 }
