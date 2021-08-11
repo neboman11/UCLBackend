@@ -20,7 +20,7 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "League.Origin.RoleId", "860638221859291195" }
+                values: new object[] { "League.Origins.RoleId", "860638221859291195" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",

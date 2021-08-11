@@ -325,6 +325,15 @@ namespace UCLBackend.Service.Services
                     {
                         discordMessage.AppendLine(player.Name.PadRight(15) + player.Salary.ToString().PadLeft(4));
                     }
+
+                    if (league != PlayerLeague.Superior)
+                    {
+                        var temp = $"League.{league}.CapSpace";
+                        var maxSalary = double.Parse(_settingRepository.GetSetting($"League.{league}.CapSpace"));
+                        var currentTotalSalary = team.Players.Sum(x => x.Salary);
+                        discordMessage.AppendLine($"Salary Remaining: {maxSalary - currentTotalSalary}");
+                    }
+
                     discordMessage.AppendLine("```");
 
                     await _discordService.SendEmbed(_leagueChannelIds[league], new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });

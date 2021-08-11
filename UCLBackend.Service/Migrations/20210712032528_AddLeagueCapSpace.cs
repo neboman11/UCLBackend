@@ -13,7 +13,7 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "League.Origin.CapSpace", "30.0" }
+                values: new object[] { "League.Origins.CapSpace", "30.0" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
