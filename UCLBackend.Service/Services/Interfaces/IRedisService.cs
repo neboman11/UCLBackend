@@ -7,5 +7,6 @@ namespace UCLBackend.Service.Services.Interfaces
         Task StoreValue(string key, string value);
         Task<string> RetrieveValue(string key);
         Task RemoveValue(string key);
+        Task<bool> KeyExists(string key);
     }
 }

@@ -32,7 +32,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while uploading replay file. Started by: {Context.User.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -49,7 +49,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while queueing replay file. Started by: {Context.User.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
 
@@ -65,7 +65,7 @@ namespace UCLBackend.Discord.Modules
             catch (Exception e)
             {
                 _logger.Log(LogLevel.Error, e, $"An error occurred while uploading replay files. Started by: {Context.User.Username}.");
-                await Context.Channel.SendMessageAsync("Something went wrong, please try again.");
+                await Context.Channel.SendMessageAsync(e.Message);
             }
         }
     }

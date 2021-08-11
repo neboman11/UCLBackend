@@ -34,5 +34,10 @@ namespace UCLBackend.Service.Services
         {
             await _database.KeyDeleteAsync(key);
         }
+
+        public async Task<bool> KeyExists(string key)
+        {
+            return await _database.KeyExistsAsync(key);
+        }
     }
 }

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using UCLBackend.DataAccess.Models.Responses;
 using UCLBackend.Discord.Requests;
 using UCLBackend.Service.Data.Enums;
+using UCLBackend.Service.Data.Exceptions;
 using UCLBackend.Service.Data.Helpers;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.DataAccess.Models;
@@ -34,11 +35,21 @@ namespace UCLBackend.Service.Services
 
         public async Task BeginUploadProcess(ulong userId)
         {
+            if (await _redisService.KeyExists($"upload_{userId}"))
+            {
+                throw new UCLException("An upload has already been started for this user.");
+            }
+
             await _redisService.StoreValue($"upload_{userId}", $"replay_{userId}");
         }
 
         public async Task QueueReplay(ulong userId, string replayFileUrl)
         {
+            if (!await _redisService.KeyExists($"upload_{userId}"))
+            {
+                throw new UCLException("An upload has not been started by this user.");
+            }
+
             var urls = _redisService.RetrieveValue($"replay_{userId}");
 
             if (urls == null)
@@ -53,11 +64,18 @@ namespace UCLBackend.Service.Services
 
         public async Task EndUploadProcess(ulong userId)
         {
+            if (!await _redisService.KeyExists($"upload_{userId}"))
+            {
+                throw new UCLException("An upload has not been started by this user.");
+            }
+
             var urlsKey = await _redisService.RetrieveValue($"upload_{userId}");
             var urls = await _redisService.RetrieveValue(urlsKey);
 
             // TODO: Figure out how to get league
+            // Can't get the league from the replay file since it would need to be uploaded to ball chasing first
             // TODO: Naming is different for the group (ask JoSway)
+            // Can't get the teams from the replay file since it would need to be uploaded to ball chasing first
             var groupId = await CreateBallchasingGroup($"UCL-{DateTime.Now.ToString(CultureInfo.InvariantCulture)}", PlayerLeague.Origins);
 
             // Split urls then post them to ballchasing.com
