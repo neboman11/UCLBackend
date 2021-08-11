@@ -44,6 +44,7 @@ namespace UCLBackend.Discord.Modules
             {
                 var replayUrl = Context.Message.Attachments.First().Url;
                 await _replayService.QueueReplay(Context.Message.Author.Id, replayUrl);
+                await ReplyAsync("Replay file queued for upload.");
             }
             catch (Exception e)
             {
