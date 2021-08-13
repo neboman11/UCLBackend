@@ -249,12 +249,26 @@ namespace UCLBackend.Services.Services
         {
             Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
 
-            var content = new StringContent($"{{\"content\":\"{message}\"}}", Encoding.UTF8, "application/json");
+            var messageObj = new Message()
+            {
+                Content = message
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(messageObj), Encoding.UTF8, "application/json");
 
             await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
         }
 
-        public async Task SendEmbed(ulong channelId, Embed embed)
+        public async Task<Message> SendMessage(ulong channelId, Message message)
+        {
+            Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
+
+            var content = new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json");
+
+            return await SendWebRequest.PostAsync<Message>(uri, $"Bot {_discordToken}", content);
+        }
+
+        public async Task<Message> SendEmbed(ulong channelId, Embed embed)
         {
             Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages");
 
@@ -263,9 +277,14 @@ namespace UCLBackend.Services.Services
                 Embeds = new List<Embed>() { embed }
             };
 
-            var content = new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json");
+            return await SendMessage(channelId, message);
+        }
 
-            await SendWebRequest.PostAsync(uri, $"Bot {_discordToken}", content);
+        public async Task DeleteMessage(ulong channelId, ulong messageId)
+        {
+            Uri uri = new Uri($"{_discordUrl}/channels/{channelId}/messages/{messageId}");
+
+            await SendWebRequest.DeleteAsync(uri, $"Bot {_discordToken}");
         }
 
         #region Private Methods

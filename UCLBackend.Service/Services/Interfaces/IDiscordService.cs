@@ -14,6 +14,8 @@ namespace UCLBackend.Service.Services.Interfaces
         Task RemoveLeagueRoles(ulong discordId, PlayerLeague league);
         Task LogTransaction(ulong issuerDiscordID, string message);
         Task SendMessage(ulong channelId, string message);
-        Task SendEmbed(ulong channelId, Embed embed);
+        Task<Message> SendMessage(ulong channelId, Message message);
+        Task<Message> SendEmbed(ulong channelId, Embed embed);
+        Task DeleteMessage(ulong channelId, ulong messageId);
     }
 }

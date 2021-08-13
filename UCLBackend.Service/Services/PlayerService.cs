@@ -19,15 +19,33 @@ namespace UCLBackend.Service.Services
         private readonly IPlayerRepository _playerRepository;
         private readonly ISettingRepository _settingRepository;
         private readonly IDiscordService _discordService;
+        private readonly IRedisService _redisService;
         private readonly ILogger<PlayerService> _logger;
         private Dictionary<PlayerLeague, ulong> _leagueChannelIds;
         private ulong _freeAgentRosterChannelId;
 
-        public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, ILogger<PlayerService> logger)
+        // Redis Keys
+        private static Dictionary<PlayerLeague, string> FreeAgentMessageKeys = new Dictionary<PlayerLeague, string>()
+        {
+            {PlayerLeague.Origins, "Origins.FreeAgent.MessageId"},
+            {PlayerLeague.Ultra, "Ultra.FreeAgent.MessageId"},
+            {PlayerLeague.Elite, "Elite.FreeAgent.MessageId"},
+            {PlayerLeague.Superior, "Superior.FreeAgent.MessageId"},
+        };
+        private static Dictionary<PlayerLeague, string> SignedPlayerMessageKeys = new Dictionary<PlayerLeague, string>()
+        {
+            {PlayerLeague.Origins, "Origins.Signed.MessageId"},
+            {PlayerLeague.Ultra, "Ultra.Signed.MessageId"},
+            {PlayerLeague.Elite, "Elite.Signed.MessageId"},
+            {PlayerLeague.Superior, "Superior.Signed.MessageId"},
+        };
+
+        public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, IRedisService redisService, ILogger<PlayerService> logger)
         {
             _playerRepository = playerRepository;
             _settingRepository = settingRepository;
             _discordService = discordService;
+            _redisService = redisService;
             _logger = logger;
 
             _leagueChannelIds = new Dictionary<PlayerLeague, ulong>()
@@ -298,6 +316,13 @@ namespace UCLBackend.Service.Services
 
             foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
             {
+                // Remove old message
+                ulong oldMessageId = 0;
+                if (ulong.TryParse(await _redisService.RetrieveValue(FreeAgentMessageKeys[league]), out oldMessageId))
+                {
+                    await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
+                }
+
                 var discordMessage = new StringBuilder();
                 discordMessage.AppendLine("```");
 
@@ -307,7 +332,8 @@ namespace UCLBackend.Service.Services
                 }
                 discordMessage.AppendLine("```");
 
-                await _discordService.SendEmbed(_freeAgentRosterChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
+                var message = await _discordService.SendEmbed(_freeAgentRosterChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
+                await _redisService.StoreValue(FreeAgentMessageKeys[league], message.Id.ToString());
             }
         }
 
