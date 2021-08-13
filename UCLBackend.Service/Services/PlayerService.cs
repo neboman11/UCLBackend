@@ -25,22 +25,6 @@ namespace UCLBackend.Service.Services
         private Dictionary<PlayerLeague, ulong> _leagueChannelIds;
         private ulong _freeAgentRosterChannelId;
 
-        // Redis Keys
-        private static Dictionary<PlayerLeague, string> FreeAgentMessageKeys = new Dictionary<PlayerLeague, string>()
-        {
-            {PlayerLeague.Origins, "Origins.FreeAgent.MessageId"},
-            {PlayerLeague.Ultra, "Ultra.FreeAgent.MessageId"},
-            {PlayerLeague.Elite, "Elite.FreeAgent.MessageId"},
-            {PlayerLeague.Superior, "Superior.FreeAgent.MessageId"},
-        };
-        private static Dictionary<PlayerLeague, string> SignedPlayerMessageKeys = new Dictionary<PlayerLeague, string>()
-        {
-            {PlayerLeague.Origins, "Origins.Signed.MessageId"},
-            {PlayerLeague.Ultra, "Ultra.Signed.MessageId"},
-            {PlayerLeague.Elite, "Elite.Signed.MessageId"},
-            {PlayerLeague.Superior, "Superior.Signed.MessageId"},
-        };
-
         public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, IRedisService redisService, ILogger<PlayerService> logger)
         {
             _playerRepository = playerRepository;
@@ -319,7 +303,8 @@ namespace UCLBackend.Service.Services
             {
                 // Remove old message
                 ulong oldMessageId = 0;
-                if (ulong.TryParse(await _redisService.RetrieveValue(FreeAgentMessageKeys[league]), out oldMessageId))
+                string redisKey = $"{league}.FreeAgent.MessageId";
+                if (ulong.TryParse(await _redisService.RetrieveValue(redisKey), out oldMessageId))
                 {
                     await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
                 }
@@ -334,7 +319,7 @@ namespace UCLBackend.Service.Services
                 discordMessage.AppendLine("```");
 
                 var message = await _discordService.SendEmbed(_freeAgentRosterChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
-                await _redisService.StoreValue(FreeAgentMessageKeys[league], message.Id.ToString());
+                await _redisService.StoreValue(redisKey, message.Id.ToString());
             }
         }
 
@@ -346,6 +331,14 @@ namespace UCLBackend.Service.Services
 
                 foreach (var team in teamsInLeague)
                 {
+                    // Remove old message
+                    ulong oldMessageId = 0;
+                    string redisKey = $"{league}.{team.TeamName}.MessageId";
+                    if (ulong.TryParse(await _redisService.RetrieveValue(redisKey), out oldMessageId))
+                    {
+                        await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
+                    }
+
                     var discordMessage = new StringBuilder();
                     discordMessage.AppendLine("```");
 
@@ -364,7 +357,8 @@ namespace UCLBackend.Service.Services
 
                     discordMessage.AppendLine("```");
 
-                    await _discordService.SendEmbed(_leagueChannelIds[league], new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
+                    var message = await _discordService.SendEmbed(_leagueChannelIds[league], new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
+                    await _redisService.StoreValue(redisKey, message.Id.ToString());
                 }
             }
         }

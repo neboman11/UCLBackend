@@ -60,7 +60,7 @@ Elite draft order
         */
 
         private Queue<PlayerFranchise> _draftOrder;
-        const ulong _draftChannelId = 873021003037564948;
+        const ulong _draftChannelId = 820892786064359445;
         private PlayerFranchise _currentFranchise;
         private PlayerLeague _currentLeague;
         private readonly IServiceScopeFactory _serviceScopeFactory;
