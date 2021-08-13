@@ -65,6 +65,7 @@ Elite draft order
         private PlayerLeague _currentLeague;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private int _roundCount;
+        private bool _draftOccuring = false;
 
         private Timer _timer;
 
@@ -106,7 +107,7 @@ Elite draft order
                 case PlayerLeague.Ultra:
                     _currentLeague = PlayerLeague.Ultra;
                     ResetDraftOrder(league);
-                    _roundCount = 1;
+                    _roundCount = 2;
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -125,7 +126,7 @@ Elite draft order
                 case PlayerLeague.Elite:
                     _currentLeague = PlayerLeague.Elite;
                     ResetDraftOrder(league);
-                    _roundCount = 1;
+                    _roundCount = 2;
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -145,6 +146,8 @@ Elite draft order
                     throw new Exception();
             }
 
+            _draftOccuring = true;
+
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -155,6 +158,17 @@ Elite draft order
 
         public async Task Draft(ulong issuerDiscordID, ulong discordID, PlayerFranchise franchise)
         {
+            if (!_draftOccuring)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                    await _discordService.SendMessage(_draftChannelId, $"Draft is not currently happening.");
+                }
+                return;
+            }
+
             if (_currentFranchise != franchise)
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
@@ -196,6 +210,8 @@ Elite draft order
                         {
                             var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+                            _draftOccuring = false;
+
                             await _discordService.SendMessage(_draftChannelId, "Origins Draft is over.");
                         }
                         return;
@@ -205,14 +221,17 @@ Elite draft order
                 case PlayerLeague.Ultra:
                     if (_draftOrder.Count == 0)
                     {
-                        if (_roundCount == 0)
+                        if (_roundCount == 1)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+                                _draftOccuring = false;
+
                                 await _discordService.SendMessage(_draftChannelId, "Ultra Draft is over.");
                             }
+                            _roundCount = 0;
                         }
                         else
                         {
@@ -220,6 +239,8 @@ Elite draft order
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+
+                                _draftOccuring = false;
                                 await _discordService.SendMessage(_draftChannelId, $"Ultra Draft Round 1 is over.");
                             }
                             _roundCount -= 1;
@@ -231,20 +252,25 @@ Elite draft order
                 case PlayerLeague.Elite:
                     if (_draftOrder.Count == 0)
                     {
-                        if (_roundCount == 0)
+                        if (_roundCount == 1)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+                                _draftOccuring = false;
+
                                 await _discordService.SendMessage(_draftChannelId, "Elite Draft is over.");
                             }
+                            _roundCount = 0;
                         }
                         else
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                _draftOccuring = false;
 
                                 await _discordService.SendMessage(_draftChannelId, $"Elite Draft Round 1 is over.");
                             }
@@ -269,25 +295,27 @@ Elite draft order
 
         public async Task NextRound(ulong issuerDiscordID)
         {
+            if (_roundCount == 0)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                    await _discordService.SendMessage(_draftChannelId, "No draft is awaiting another round.");
+                    return;
+                }
+            }
+
             switch (_currentLeague)
             {
                 case PlayerLeague.Origins:
-                    ResetDraftOrder(_currentLeague);
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
-                        await _discordService.SendMessage(_draftChannelId, "Starting next round of Origins Draft.");
+                        await _discordService.SendMessage(_draftChannelId, "Origins draft is only 1 round.");
                     }
-                    _currentFranchise = _draftOrder.Dequeue();
-                    using (var scope = _serviceScopeFactory.CreateScope())
-                    {
-                        var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
-
-                        await _discordService.SendMessage(_draftChannelId, $"{_currentFranchise} are on the clock, you have 120 seconds to make a selection.");
-                    }
-                    _timer.Start();
-                    break;
+                    return;
                 case PlayerLeague.Ultra:
                     ResetDraftOrder(_currentLeague);
                     using (var scope = _serviceScopeFactory.CreateScope())
@@ -325,6 +353,8 @@ Elite draft order
                 default:
                     throw new Exception();
             }
+
+            _draftOccuring = true;
         }
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
@@ -395,6 +425,17 @@ Elite draft order
 
         public async Task PickSkip(ulong issuerDiscordID)
         {
+            if (!_draftOccuring)
+            {
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                    await _discordService.SendMessage(_draftChannelId, $"Draft is not currently happening.");
+                }
+                return;
+            }
+
             _timer.Stop();
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -410,6 +451,8 @@ Elite draft order
                         using (var scope = _serviceScopeFactory.CreateScope())
                         {
                             var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                            _draftOccuring = false;
 
                             await _discordService.SendMessage(_draftChannelId, "Origins Draft is over.");
                         }
@@ -427,20 +470,25 @@ Elite draft order
                 case PlayerLeague.Ultra:
                     if (_draftOrder.Count == 0)
                     {
-                        if (_roundCount == 0)
+                        if (_roundCount == 1)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+                                _draftOccuring = false;
+
                                 await _discordService.SendMessage(_draftChannelId, "Ultra Draft is over.");
                             }
+                            _roundCount = 0;
                         }
                         else
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                _draftOccuring = false;
 
                                 await _discordService.SendMessage(_draftChannelId, $"Ultra Draft Round 1 is over.");
                             }
@@ -460,20 +508,25 @@ Elite draft order
                 case PlayerLeague.Elite:
                     if (_draftOrder.Count == 0)
                     {
-                        if (_roundCount == 0)
+                        if (_roundCount == 1)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
+                                _draftOccuring = false;
+
                                 await _discordService.SendMessage(_draftChannelId, "Elite Draft is over.");
                             }
+                            _roundCount = 0;
                         }
                         else
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                _draftOccuring = false;
 
                                 await _discordService.SendMessage(_draftChannelId, $"Elite Draft Round 1 is over.");
                             }
