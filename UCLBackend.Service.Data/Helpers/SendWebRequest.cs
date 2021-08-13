@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UCLBackend.Service.Data.Responses;
 using UCLBackend.Service.Data.Exceptions;
+using Newtonsoft.Json.Linq;
 
 namespace UCLBackend.Service.Data.Helpers
 {
@@ -211,15 +212,15 @@ namespace UCLBackend.Service.Data.Helpers
             {
                 var responseMessage = await response.Content.ReadAsStringAsync();
 
-                var responseObj = JsonConvert.DeserializeObject<BaseResponse>(responseMessage);
+                var responseObj = JObject.Parse(responseMessage);
 
-                if(string.IsNullOrEmpty(responseObj?.ErrorMessage))
+                if(string.IsNullOrEmpty(responseObj["errorMessage"]?.ToString()))
                 {
                     throw new HttpRequestException($"{host} gave response: {response.ReasonPhrase} - {responseMessage}");
                 }
                 else
                 {
-                    throw new UCLException(responseObj.ErrorMessage);
+                    throw new UCLException(responseObj["errorMessage"].ToString());
                 }
             }
         }

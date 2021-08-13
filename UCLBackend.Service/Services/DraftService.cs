@@ -11,7 +11,6 @@ namespace UCLBackend.Service.Services
 {
     public class DraftService : IDraftService
     {
-        private readonly IRedisService _redisService;
         private readonly ILogger<DraftService> _logger;
 
         /*
@@ -59,19 +58,17 @@ Elite draft order
 12th Astros
         */
 
-        private Queue<PlayerFranchise> _originsDraftOrder;
-        private Queue<PlayerFranchise> _ultraDraftOrder;
-        private Queue<PlayerFranchise> _eliteDraftOrder;
+        private Queue<PlayerFranchise> _draftOrder;
         const ulong _draftChannelId = 873021003037564948;
         private PlayerFranchise _currentFranchise;
         private PlayerLeague _currentLeague;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private int _roundCount;
 
         private Timer _timer;
 
-        public DraftService(IRedisService redisService, ILogger<DraftService> logger, IServiceScopeFactory scopeFactory)
+        public DraftService(ILogger<DraftService> logger, IServiceScopeFactory scopeFactory)
         {
-            _redisService = redisService;
             _logger = logger;
             _serviceScopeFactory = scopeFactory;
         }
@@ -96,7 +93,7 @@ Elite draft order
 
                         await _discordService.SendMessage(_draftChannelId, "Starting Origins Draft.");
                     }
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -108,13 +105,14 @@ Elite draft order
                 case PlayerLeague.Ultra:
                     _currentLeague = PlayerLeague.Ultra;
                     ResetDraftOrder(league);
+                    _roundCount = 1;
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
                         await _discordService.SendMessage(_draftChannelId, "Starting Ultra Draft.");
                     }
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -122,18 +120,18 @@ Elite draft order
                         await _discordService.SendMessage(_draftChannelId, $"{_currentFranchise} are on the clock, you have 120 seconds to make a selection.");
                     }
                     _timer.Start();
-                    await _redisService.StoreValue("draft-remaining-rounds", "2");
                     break;
                 case PlayerLeague.Elite:
                     _currentLeague = PlayerLeague.Elite;
                     ResetDraftOrder(league);
+                    _roundCount = 1;
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
 
                         await _discordService.SendMessage(_draftChannelId, "Starting Elite Draft.");
                     }
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -141,7 +139,6 @@ Elite draft order
                         await _discordService.SendMessage(_draftChannelId, $"{_currentFranchise} are on the clock, you have 120 seconds to make a selection.");
                     }
                     _timer.Start();
-                    await _redisService.StoreValue("draft-remaining-rounds", "2");
                     break;
                 default:
                     throw new Exception();
@@ -178,7 +175,7 @@ Elite draft order
             switch (_currentLeague)
             {
                 case PlayerLeague.Origins:
-                    if (_originsDraftOrder.Count == 0)
+                    if (_draftOrder.Count == 0)
                     {
                         using (var scope = _serviceScopeFactory.CreateScope())
                         {
@@ -189,13 +186,12 @@ Elite draft order
                         _timer.Stop();
                         return;
                     }
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     break;
                 case PlayerLeague.Ultra:
-                    if (_ultraDraftOrder.Count == 0)
+                    if (_draftOrder.Count == 0)
                     {
-                        var remainingRounds = int.Parse(await _redisService.RetrieveValue("draft-remaining-rounds"));
-                        if (remainingRounds == 1)
+                        if (_roundCount == 0)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
@@ -212,18 +208,17 @@ Elite draft order
 
                                 await _discordService.SendMessage(_draftChannelId, $"Ultra Draft Round 1 is over.");
                             }
-                            await _redisService.StoreValue("draft-remaining-rounds", $"{remainingRounds - 1}");
+                            _roundCount -= 1;
                         }
                         _timer.Stop();
                         return;
                     }
-                    _currentFranchise = _ultraDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     break;
                 case PlayerLeague.Elite:
-                    if (_eliteDraftOrder.Count == 0)
+                    if (_draftOrder.Count == 0)
                     {
-                        var remainingRounds = int.Parse(await _redisService.RetrieveValue("draft-remaining-rounds"));
-                        if (remainingRounds == 1)
+                        if (_roundCount == 0)
                         {
                             using (var scope = _serviceScopeFactory.CreateScope())
                             {
@@ -240,12 +235,12 @@ Elite draft order
 
                                 await _discordService.SendMessage(_draftChannelId, $"Elite Draft Round 1 is over.");
                             }
-                            await _redisService.StoreValue("draft-remaining-rounds", $"{remainingRounds - 1}");
+                            _roundCount -= 1;
                         }
                         _timer.Stop();
                         return;
                     }
-                    _currentFranchise = _eliteDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     break;
                 default:
                     throw new Exception();
@@ -272,7 +267,7 @@ Elite draft order
 
                         await _discordService.SendMessage(_draftChannelId, "Starting next round of Origins Draft.");
                     }
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -289,7 +284,7 @@ Elite draft order
 
                         await _discordService.SendMessage(_draftChannelId, "Starting next round of Ultra Draft.");
                     }
-                    _currentFranchise = _ultraDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -306,7 +301,7 @@ Elite draft order
 
                         await _discordService.SendMessage(_draftChannelId, "Starting next round of Elite Draft.");
                     }
-                    _currentFranchise = _eliteDraftOrder.Dequeue();
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -331,8 +326,8 @@ Elite draft order
             switch (_currentLeague)
             {
                 case PlayerLeague.Origins:
-                    _originsDraftOrder.Enqueue(_currentFranchise);
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    _draftOrder.Enqueue(_currentFranchise);
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -342,8 +337,8 @@ Elite draft order
                     _timer.Start();
                     break;
                 case PlayerLeague.Ultra:
-                    _ultraDraftOrder.Enqueue(_currentFranchise);
-                    _currentFranchise = _ultraDraftOrder.Dequeue();
+                    _draftOrder.Enqueue(_currentFranchise);
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -353,8 +348,8 @@ Elite draft order
                     _timer.Start();
                     break;
                 case PlayerLeague.Elite:
-                    _eliteDraftOrder.Enqueue(_currentFranchise);
-                    _currentFranchise = _eliteDraftOrder.Dequeue();
+                    _draftOrder.Enqueue(_currentFranchise);
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -373,13 +368,13 @@ Elite draft order
             switch (league)
             {
                 case PlayerLeague.Origins:
-                    _originsDraftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Bison, PlayerFranchise.Gators, PlayerFranchise.Samurai, PlayerFranchise.Astros, PlayerFranchise.Knights, PlayerFranchise.Vikings, PlayerFranchise.CMM, PlayerFranchise.Spartans });
+                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Bison, PlayerFranchise.Gators, PlayerFranchise.Samurai, PlayerFranchise.Astros, PlayerFranchise.Knights, PlayerFranchise.Vikings, PlayerFranchise.CMM, PlayerFranchise.Spartans });
                     break;
                 case PlayerLeague.Ultra:
-                    _ultraDraftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Cobras, PlayerFranchise.XII_Boost, PlayerFranchise.CMM, PlayerFranchise.Lightning, PlayerFranchise.Samurai, PlayerFranchise.Spartans, PlayerFranchise.Gators, PlayerFranchise.Bison, PlayerFranchise.Astros });
+                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Cobras, PlayerFranchise.XII_Boost, PlayerFranchise.CMM, PlayerFranchise.Lightning, PlayerFranchise.Samurai, PlayerFranchise.Spartans, PlayerFranchise.Gators, PlayerFranchise.Bison, PlayerFranchise.Astros });
                     break;
                 case PlayerLeague.Elite:
-                    _eliteDraftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Knights, PlayerFranchise.Cobras, PlayerFranchise.Vikings, PlayerFranchise.Samurai, PlayerFranchise.Gators, PlayerFranchise.Spartans, PlayerFranchise.XII_Boost, PlayerFranchise.Lightning, PlayerFranchise.CMM, PlayerFranchise.Bison, PlayerFranchise.Astros });
+                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Knights, PlayerFranchise.Cobras, PlayerFranchise.Vikings, PlayerFranchise.Samurai, PlayerFranchise.Gators, PlayerFranchise.Spartans, PlayerFranchise.XII_Boost, PlayerFranchise.Lightning, PlayerFranchise.CMM, PlayerFranchise.Bison, PlayerFranchise.Astros });
                     break;
                 default:
                     throw new Exception();
@@ -398,7 +393,18 @@ Elite draft order
             switch (_currentLeague)
             {
                 case PlayerLeague.Origins:
-                    _currentFranchise = _originsDraftOrder.Dequeue();
+                    if (_draftOrder.Count == 0)
+                    {
+                        using (var scope = _serviceScopeFactory.CreateScope())
+                        {
+                            var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                            await _discordService.SendMessage(_draftChannelId, "Origins Draft is over.");
+                        }
+                        _timer.Stop();
+                        return;
+                    }
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -408,7 +414,31 @@ Elite draft order
                     _timer.Start();
                     break;
                 case PlayerLeague.Ultra:
-                    _currentFranchise = _ultraDraftOrder.Dequeue();
+                    if (_draftOrder.Count == 0)
+                    {
+                        if (_roundCount == 0)
+                        {
+                            using (var scope = _serviceScopeFactory.CreateScope())
+                            {
+                                var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                await _discordService.SendMessage(_draftChannelId, "Ultra Draft is over.");
+                            }
+                        }
+                        else
+                        {
+                            using (var scope = _serviceScopeFactory.CreateScope())
+                            {
+                                var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                await _discordService.SendMessage(_draftChannelId, $"Ultra Draft Round 1 is over.");
+                            }
+                            _roundCount -= 1;
+                        }
+                        _timer.Stop();
+                        return;
+                    }
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
@@ -418,7 +448,31 @@ Elite draft order
                     _timer.Start();
                     break;
                 case PlayerLeague.Elite:
-                    _currentFranchise = _eliteDraftOrder.Dequeue();
+                    if (_draftOrder.Count == 0)
+                    {
+                        if (_roundCount == 0)
+                        {
+                            using (var scope = _serviceScopeFactory.CreateScope())
+                            {
+                                var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                await _discordService.SendMessage(_draftChannelId, "Elite Draft is over.");
+                            }
+                        }
+                        else
+                        {
+                            using (var scope = _serviceScopeFactory.CreateScope())
+                            {
+                                var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                                await _discordService.SendMessage(_draftChannelId, $"Elite Draft Round 1 is over.");
+                            }
+                            _roundCount -= 1;
+                        }
+                        _timer.Stop();
+                        return;
+                    }
+                    _currentFranchise = _draftOrder.Dequeue();
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var _discordService = scope.ServiceProvider.GetService<IDiscordService>();

@@ -218,6 +218,7 @@ namespace UCLBackend.Service.Services
             await LogTransaction(issuerDiscordID, $"Released player {player.Name}");
         }
 
+        // TODO: Check logic here
         public async Task PlayerRankout(ulong issuerDiscordID, ulong discordID)
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);

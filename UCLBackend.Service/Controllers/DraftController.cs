@@ -1,7 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using UCLBackend.Service.Data.Requests;
+using UCLBackend.Service.Data.Responses;
 using UCLBackend.Service.Services.Interfaces;
 
 namespace UCLBackend.Service.Controllers
@@ -21,30 +23,66 @@ namespace UCLBackend.Service.Controllers
 
         [HttpPost]
         [Route("StartDraft")]
-        public async Task StartDraft([FromBody] StartDraftRequest request)
+        public async Task<IActionResult> StartDraft([FromBody] StartDraftRequest request)
         {
-            await _draftService.StartDraft(request.IssuerDiscordID, request.League);
+            try
+            {
+                await _draftService.StartDraft(request.IssuerDiscordID, request.League);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
+            }
         }
 
         [HttpPost]
         [Route("Draft")]
-        public async Task Draft([FromBody] DraftRequest request)
+        public async Task<IActionResult> Draft([FromBody] DraftRequest request)
         {
-            await _draftService.Draft(request.IssuerDiscordID, request.DiscordID, request.Franchise);
+            try
+            {
+                await _draftService.Draft(request.IssuerDiscordID, request.DiscordID, request.Franchise);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
+            }
         }
 
         [HttpPut]
         [Route("NextRound")]
-        public async Task NextRound([FromBody] BaseRequest request)
+        public async Task<IActionResult> NextRound([FromBody] BaseRequest request)
         {
-            await _draftService.NextRound(request.IssuerDiscordID);
+            try
+            {
+                await _draftService.NextRound(request.IssuerDiscordID);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
+            }
         }
 
         [HttpPut]
         [Route("PickSkip")]
-        public async Task PickSkip([FromBody] BaseRequest request)
+        public async Task<IActionResult> PickSkip([FromBody] BaseRequest request)
         {
-            await _draftService.PickSkip(request.IssuerDiscordID);
+            try
+            {
+                await _draftService.PickSkip(request.IssuerDiscordID);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
+            }
         }
     }
 }
