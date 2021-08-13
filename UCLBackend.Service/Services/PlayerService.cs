@@ -11,6 +11,7 @@ using UCLBackend.Service.Data.Responses;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using UCLBackend.Service.Data.Discord;
+using UCLBackend.Service.Data.Exceptions;
 
 namespace UCLBackend.Service.Services
 {
@@ -298,7 +299,7 @@ namespace UCLBackend.Service.Services
 
             if (player == null)
             {
-                throw new ArgumentException("Player not found");
+                throw new UCLException("Player not found");
             }
 
             return new PlayerInfoResponse

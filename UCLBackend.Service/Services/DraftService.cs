@@ -5,6 +5,7 @@ using System.Timers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using UCLBackend.Service.Data.Enums;
+using UCLBackend.Service.Data.Exceptions;
 using UCLBackend.Service.Services.Interfaces;
 
 namespace UCLBackend.Service.Services
@@ -154,7 +155,6 @@ Elite draft order
 
         public async Task Draft(ulong issuerDiscordID, ulong discordID, PlayerFranchise franchise)
         {
-            _timer.Stop();
             if (_currentFranchise != franchise)
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
@@ -165,11 +165,26 @@ Elite draft order
                 }
                 return;
             }
+
+            _timer.Stop();
+
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var _playerService = scope.ServiceProvider.GetService<IPlayerService>();
 
-                await _playerService.SignPlayer(issuerDiscordID, discordID, franchise.ToString());
+                try
+                {
+                    _playerService.GetPlayerInfo(discordID);
+
+                    await _playerService.SignPlayer(issuerDiscordID, discordID, franchise.ToString());
+                }
+                catch (UCLException e)
+                {
+                    var _discordService = scope.ServiceProvider.GetService<IDiscordService>();
+
+                    await _discordService.SendMessage(_draftChannelId, $"Unable to sign player: {e.Message}.");
+                    return;
+                }
             }
 
             switch (_currentLeague)
@@ -183,7 +198,6 @@ Elite draft order
 
                             await _discordService.SendMessage(_draftChannelId, "Origins Draft is over.");
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
@@ -210,7 +224,6 @@ Elite draft order
                             }
                             _roundCount -= 1;
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
@@ -237,7 +250,6 @@ Elite draft order
                             }
                             _roundCount -= 1;
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
@@ -401,7 +413,6 @@ Elite draft order
 
                             await _discordService.SendMessage(_draftChannelId, "Origins Draft is over.");
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
@@ -435,7 +446,6 @@ Elite draft order
                             }
                             _roundCount -= 1;
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
@@ -469,7 +479,6 @@ Elite draft order
                             }
                             _roundCount -= 1;
                         }
-                        _timer.Stop();
                         return;
                     }
                     _currentFranchise = _draftOrder.Dequeue();
