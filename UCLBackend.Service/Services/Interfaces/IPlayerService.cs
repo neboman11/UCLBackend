@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UCLBackend.Service.Data.Requests;
 using UCLBackend.Service.Data.Responses;
@@ -15,5 +16,6 @@ namespace UCLBackend.Service.Services.Interfaces
         PlayerInfoResponse GetPlayerInfo(ulong discordID);
         Task FreeAgentsList();
         Task Roster();
+        Task<List<Data.DataModels.Player>> GetPlayers();
     }
 }

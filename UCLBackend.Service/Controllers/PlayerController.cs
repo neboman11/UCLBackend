@@ -137,6 +137,8 @@ namespace UCLBackend.Service.Controllers
 
         // TODO: Create route to add alt accounts to a user
         // TODO: Create route to modify main account of user
+        // TODO: Create route to change people's name
+        // TODO: Create route to remove players from the database who are not in the discord server
 
         [HttpGet]
         [Route("FreeAgentsList")]
@@ -166,6 +168,22 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting roster");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpGet]
+        [Route("GetPlayers")]
+        public async Task<IActionResult> GetPlayers()
+        {
+            try
+            {
+                var players = await _playerService.GetPlayers();
+                return Ok(players);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting all players");
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }

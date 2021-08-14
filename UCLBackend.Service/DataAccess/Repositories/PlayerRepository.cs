@@ -68,9 +68,14 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return (doublesMMRs, triplesMMRs);
         }
 
-        public List<Player> GetAllPlayers()
+        public List<Player> GetAllPlayersWithAccounts()
         {
             return _context.Players.Include(p => p.Accounts).ToList();
+        }
+
+        public async Task<List<Player>> GetAllPlayersWithTeams()
+        {
+            return await _context.Players.Include(p => p.Team).ToListAsync();
         }
 
         public Player GetPlayer(string playerID)

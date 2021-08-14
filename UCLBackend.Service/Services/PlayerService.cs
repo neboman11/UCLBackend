@@ -91,7 +91,7 @@ namespace UCLBackend.Service.Services
 
         public async Task UpdateAllMMRs()
         {
-            var players = _playerRepository.GetAllPlayers();
+            var players = _playerRepository.GetAllPlayersWithAccounts();
 
             foreach (var player in players)
             {
@@ -361,6 +361,19 @@ namespace UCLBackend.Service.Services
                     await _redisService.StoreValue(redisKey, message.Id.ToString());
                 }
             }
+        }
+
+        public async Task<List<Data.DataModels.Player>> GetPlayers()
+        {
+            var players = await _playerRepository.GetAllPlayersWithTeams();
+            var returnPlayers = new List<Data.DataModels.Player>();
+
+            foreach(var player in players)
+            {
+                returnPlayers.Add(new Data.DataModels.Player{Name = player.Name, Salary = player.Salary.Value, Team = player.Team?.TeamName, League = GetPlayerLeague(player.Salary.Value).ToString()});
+            }
+
+            return returnPlayers;
         }
 
         #region Private Methods
