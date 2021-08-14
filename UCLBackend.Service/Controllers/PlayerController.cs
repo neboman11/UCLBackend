@@ -187,5 +187,21 @@ namespace UCLBackend.Service.Controllers
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
+
+        [HttpGet]
+        [Route("GetPlayersByLeague")]
+        public async Task<IActionResult> GetPlayersByLeague([FromQuery] string league)
+        {
+            try
+            {
+                var players = await _playerService.GetPlayersByLeague(league);
+                return Ok(players);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting all players");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
     }
 }

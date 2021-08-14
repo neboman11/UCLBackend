@@ -459,3 +459,6 @@ appsettings.Production.json
 
 # Environment variables file
 .env
+
+# Frontend libraries
+UCLFrontend/wwwroot/lib

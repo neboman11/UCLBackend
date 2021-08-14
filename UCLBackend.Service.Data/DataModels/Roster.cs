@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UCLBackend.Service.DataAccess.Models
+namespace UCLBackend.Service.Data.DataModels
 {
     [Table("Roster")]
     public class Team

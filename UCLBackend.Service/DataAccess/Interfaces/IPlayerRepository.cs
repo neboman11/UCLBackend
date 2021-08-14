@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.Data.Enums;
+using UCLBackend.Service.Data.DataModels;
 
 namespace UCLBackend.Service.DataAccess.Interfaces
 {

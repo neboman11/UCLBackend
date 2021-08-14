@@ -1,3 +1,4 @@
+using UCLBackend.Service.Data.DataModels;
 using UCLBackend.Service.DataAccess.Models;
 
 namespace UCLBackend.Service.DataAccess.Interfaces

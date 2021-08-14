@@ -1,0 +1,261 @@
+﻿@page "/roster"
+
+@using UCLBackend.Service.Data.DataModels
+@using UCLBackend.Service.Data.Enums
+@using UCLBackend.Service.Data.Helpers
+@using UCLFrontend.Services
+@using UCLFrontend.Enums
+@inject PlayerService PlayerService
+
+<h1>Roster</h1>
+
+@if (players == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="pb-2 row">
+        <div class="col-md-1">
+            <button class="btn" @onclick="RefreshPlayers">Refresh</button>
+        </div>
+        <div class="col-md-1">
+            <button class="btn" @onclick="HideFreeAgents"><i class="fas @(GetHideFreeAgentsStyle())"></i> Free Agents</button>
+        </div>
+        <div class="col-md-1">
+            <select class="form-control" @onchange="ShowOnlyGivenLeague">
+                <option value="All" selected>All</option>
+                @foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
+                {
+                    <option value="@(league.ToString())">@(league.ToString())</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <span class="sort-link" @onclick="() => SortTable(Enums.PlayerSortingColumn.Name)">Name</span>
+                    <span class="fas @(GetSortStyle(Enums.PlayerSortingColumn.Name))"></span>
+                </th>
+                <th>
+                    <span class="sort-link" @onclick="() => SortTable(Enums.PlayerSortingColumn.Salary)">Salary</span>
+                    <span class="fas @(GetSortStyle(Enums.PlayerSortingColumn.Salary))"></span>
+                </th>
+                <th>
+                    <span class="sort-link" @onclick="() => SortTable(Enums.PlayerSortingColumn.Team)">Team</span>
+                    <span class="fas @(GetSortStyle(Enums.PlayerSortingColumn.Team))"></span>
+                </th>
+                <th>
+                    <span class="sort-link" @onclick="() => SortTable(Enums.PlayerSortingColumn.League)">League</span>
+                    <span class="fas @(GetSortStyle(Enums.PlayerSortingColumn.League))"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var player in tablePlayers)
+            {
+                @if (FreeAgentsAreHidden)
+                {
+                    @if (player.Team != null)
+                    {
+                        <tr>
+                            <td>@player.Name</td>
+                            <td>@player.Salary</td>
+                            <td>@player.Team?.TeamName</td>
+                            <td>@PlayerHelpers.GetPlayerLeague(player.Salary.Value, leagueMinSalaries)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>@player.Name</td>
+                        <td>@player.Salary</td>
+                        <td>@player.Team?.TeamName</td>
+                        <td>@PlayerHelpers.GetPlayerLeague(player.Salary.Value, leagueMinSalaries)</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Player> players;
+    private List<Player> tablePlayers;
+    private Dictionary<PlayerLeague, double> leagueMinSalaries;
+    private bool IsSortedAscending = true;
+    private bool FreeAgentsAreHidden;
+    private Enums.PlayerSortingColumn CurrentSortColumn;
+    private string CurrentLeagueFilter = "All";
+
+    protected override async Task OnInitializedAsync()
+    {
+        players = await PlayerService.GetPlayersAsync();
+        leagueMinSalaries = await PlayerService.GetLeagueMinSalariesAsync();
+        ReloadTablePlayers();
+    }
+
+    private async Task RefreshPlayers()
+    {
+        players = await PlayerService.GetPlayersAsync();
+        ReloadTablePlayers();
+    }
+
+    private void ReloadTablePlayers()
+    {
+        tablePlayers = players;
+        ShowOnlyGivenLeague(new ChangeEventArgs{ Value = CurrentLeagueFilter });
+    }
+
+    private void HideFreeAgents()
+    {
+        FreeAgentsAreHidden = !FreeAgentsAreHidden;
+    }
+
+    private string GetSortStyle(Enums.PlayerSortingColumn column)
+    {
+        if (CurrentSortColumn != column)
+        {
+            return string.Empty;
+        }
+        if (IsSortedAscending)
+        {
+            return "fa-sort-up";
+        }
+        else
+        {
+            return "fa-sort-down";
+        }
+    }
+
+    private string GetHideFreeAgentsStyle()
+    {
+        if (FreeAgentsAreHidden)
+        {
+            return "fa-eye-slash";
+        }
+        else
+        {
+            return "fa-eye";
+        }
+    }
+
+    private void ShowOnlyGivenLeague(ChangeEventArgs args)
+    {
+        switch(args.Value.ToString())
+        {
+            case "All":
+                tablePlayers = players;
+                CurrentLeagueFilter = "All";
+                break;
+            case "Origins":
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Origins).ToList();
+                CurrentLeagueFilter = "Origins";
+                break;
+            case "Ultra":
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Ultra).ToList();
+                CurrentLeagueFilter = "Ultra";
+                break;
+            case "Elite":
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Elite).ToList();
+                CurrentLeagueFilter = "Elite";
+                break;
+            case "Superior":
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Superior).ToList();
+                CurrentLeagueFilter = "Superior";
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SortTable(Enums.PlayerSortingColumn column)
+    {
+        //Sorting against a column that is not currently sorted against.
+        if (column != CurrentSortColumn)
+        {
+            switch (column)
+            {
+                case Enums.PlayerSortingColumn.Name:
+                    players = players.OrderBy(x => x.Name.ToLower()).ToList();
+                    CurrentSortColumn = column;
+                    IsSortedAscending = true;
+                    break;
+                case Enums.PlayerSortingColumn.Salary:
+                    players = players.OrderBy(x => x.Salary).ToList();
+                    CurrentSortColumn = column;
+                    IsSortedAscending = true;
+                    break;
+                case Enums.PlayerSortingColumn.Team:
+                    players = players.OrderBy(x => x.Team?.TeamName.ToLower()).ToList();
+                    CurrentSortColumn = column;
+                    IsSortedAscending = true;
+                    break;
+                case Enums.PlayerSortingColumn.League:
+                    players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                    CurrentSortColumn = column;
+                    IsSortedAscending = true;
+                    break;
+            }
+        }
+        else //Sorting against same column but in different direction
+        {
+            if (IsSortedAscending)
+            {
+                switch (column)
+                {
+                    case Enums.PlayerSortingColumn.Name:
+                        players = players.OrderByDescending(x => x.Name.ToLower()).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = false;
+                        break;
+                    case Enums.PlayerSortingColumn.Salary:
+                        players = players.OrderByDescending(x => x.Salary).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = false;
+                        break;
+                    case Enums.PlayerSortingColumn.Team:
+                        players = players.OrderByDescending(x => x.Team?.TeamName.ToLower()).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = false;
+                        break;
+                    case Enums.PlayerSortingColumn.League:
+                        players = players.OrderByDescending(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = false;
+                        break;
+                }
+            }
+            else
+            {
+                switch (column)
+                {
+                    case Enums.PlayerSortingColumn.Name:
+                        players = players.OrderBy(x => x.Name.ToLower()).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = true;
+                        break;
+                    case Enums.PlayerSortingColumn.Salary:
+                        players = players.OrderBy(x => x.Salary).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = true;
+                        break;
+                    case Enums.PlayerSortingColumn.Team:
+                        players = players.OrderBy(x => x.Team?.TeamName.ToLower()).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = true;
+                        break;
+                    case Enums.PlayerSortingColumn.League:
+                        players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                        CurrentSortColumn = column;
+                        IsSortedAscending = true;
+                        break;
+                }
+            }
+        }
+    }
+}

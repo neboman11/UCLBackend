@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using UCLBackend.Service.Data.DataModels;
 
 namespace UCLBackend.Service.DataAccess.Models
 {

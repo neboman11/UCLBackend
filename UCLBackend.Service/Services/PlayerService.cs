@@ -1,7 +1,5 @@
-using UCLBackend.Service.DataAccess.Models;
 using UCLBackend.Service.DataAccess.Interfaces;
 using UCLBackend.Service.Services.Interfaces;
-using UCLBackend.Service.Data.Requests;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -12,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using UCLBackend.Service.Data.Discord;
 using UCLBackend.Service.Data.Exceptions;
+using UCLBackend.Service.Data.DataModels;
+using UCLBackend.Service.Data.Helpers;
 
 namespace UCLBackend.Service.Services
 {
@@ -23,6 +23,7 @@ namespace UCLBackend.Service.Services
         private readonly IRedisService _redisService;
         private readonly ILogger<PlayerService> _logger;
         private Dictionary<PlayerLeague, ulong> _leagueChannelIds;
+        private Dictionary<PlayerLeague, double> _leagueMinSalaries;
         private ulong _freeAgentRosterChannelId;
 
         public PlayerService(IPlayerRepository playerRepository, ISettingRepository settingRepository, IDiscordService discordService, IRedisService redisService, ILogger<PlayerService> logger)
@@ -40,6 +41,7 @@ namespace UCLBackend.Service.Services
                 {PlayerLeague.Elite, ulong.Parse(_settingRepository.GetSetting("Roster.Elite.ChannelId"))},
                 {PlayerLeague.Superior, ulong.Parse(_settingRepository.GetSetting("Roster.Superior.ChannelId"))}
             };
+            _leagueMinSalaries = _settingRepository.GetMinSalaries();
             _freeAgentRosterChannelId = ulong.Parse(_settingRepository.GetSetting("Roster.FreeAgent.ChannelId"));
         }
 
@@ -71,8 +73,8 @@ namespace UCLBackend.Service.Services
 
             player = await UpdatePlayerMMR(player);
 
-            await _discordService.AddLeagueRolesToUser(player.DiscordID, GetPlayerLeague(player.Salary.Value));
-            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), GetPlayerLeague(player.Salary.Value));
+            await _discordService.AddLeagueRolesToUser(player.DiscordID, PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
+            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
             // Remove the accounts from the player so they can be saved to the database
@@ -99,10 +101,10 @@ namespace UCLBackend.Service.Services
                 {
                     try
                     {
-                        var oldLeague = GetPlayerLeague(player.Salary.Value);
+                        var oldLeague = PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries);
 
                         var newPlayer = await UpdatePlayerMMR(player);
-                        var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
+                        var newLeague = PlayerHelpers.GetPlayerLeague(newPlayer.Salary.Value, _leagueMinSalaries);
 
                         if (oldLeague != newLeague)
                         {
@@ -130,10 +132,10 @@ namespace UCLBackend.Service.Services
         {
             var player = _playerRepository.GetPlayerUsingDiscordID(discordID);
 
-            var oldLeague = GetPlayerLeague(player.Salary.Value);
+            var oldLeague = PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries);
 
             var newPlayer = await UpdatePlayerMMR(player);
-            var newLeague = GetPlayerLeague(newPlayer.Salary.Value);
+            var newLeague = PlayerHelpers.GetPlayerLeague(newPlayer.Salary.Value, _leagueMinSalaries);
 
             try
             {
@@ -171,7 +173,7 @@ namespace UCLBackend.Service.Services
                 throw new ArgumentException("Player is already signed");
             }
 
-            var team = _playerRepository.GetTeam(franchiseName, GetPlayerLeague(player.Salary.Value));
+            var team = _playerRepository.GetTeam(franchiseName, PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
 
             if (team == null)
             {
@@ -182,8 +184,8 @@ namespace UCLBackend.Service.Services
             player.IsFreeAgent = false;
 
             // Update Discord
-            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(player.Team), GetPlayerLeague(player.Salary.Value));
-            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(null), GetPlayerLeague(player.Salary.Value));
+            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(player.Team), PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
+            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(null), PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
             await _discordService.SetFranchiseNickname(player.DiscordID, GetPlayerFranchise(player.Team), player.Name);
 
             _playerRepository.UpdatePlayer(player);
@@ -206,14 +208,14 @@ namespace UCLBackend.Service.Services
             }
 
             // Need to remove the old franchise role before clearing the team
-            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(player.Team), GetPlayerLeague(player.Salary.Value));
+            await _discordService.RemoveFranchiseRoles(player.DiscordID, GetPlayerFranchise(player.Team), PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
 
             player.IsFreeAgent = true;
             player.TeamID = null;
             player = await UpdatePlayerMMR(player);
 
             // Update Discord
-            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), GetPlayerLeague(player.Salary.Value));
+            await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries));
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
             _playerRepository.UpdatePlayer(player);
@@ -242,27 +244,28 @@ namespace UCLBackend.Service.Services
 
             var newPeakMMR = doublesMMRs.Select(x => x.Item1).Max() > triplesMMRs.Select(x => x.Item1).Max() ? doublesMMRs.Select(x => x.Item1).Max() : triplesMMRs.Select(x => x.Item1).Max();
             var newSalary = ((newPeakMMR / 50) * 50) / 100.0;
+            var playerLeague = PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries);
 
-            if (newSalary >= superiorMinSalary - 0.5 && GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior)
+            if (newSalary >= superiorMinSalary - 0.5 && playerLeague != PlayerLeague.Superior)
             {
                 await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Superior);
-                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.RemoveLeagueRoles(discordID, playerLeague);
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
             }
-            else if (newSalary >= eliteMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
+            else if (newSalary >= eliteMinSalary - 0.5 && (playerLeague != PlayerLeague.Elite || playerLeague != PlayerLeague.Superior))
             {
                 await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Elite);
-                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.RemoveLeagueRoles(discordID, playerLeague);
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
             }
-            else if (newSalary >= ultraMinSalary - 0.5 && (GetPlayerLeague(player.Salary.Value) != PlayerLeague.Ultra || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Elite || GetPlayerLeague(player.Salary.Value) != PlayerLeague.Superior))
+            else if (newSalary >= ultraMinSalary - 0.5 && (playerLeague != PlayerLeague.Ultra || playerLeague != PlayerLeague.Elite || playerLeague != PlayerLeague.Superior))
             {
                 await _discordService.AddLeagueRolesToUser(discordID, PlayerLeague.Ultra);
-                await _discordService.RemoveLeagueRoles(discordID, GetPlayerLeague(player.Salary.Value));
+                await _discordService.RemoveLeagueRoles(discordID, playerLeague);
 
                 player.PeakMMR = newPeakMMR;
                 player.Salary = newSalary;
@@ -363,17 +366,18 @@ namespace UCLBackend.Service.Services
             }
         }
 
-        public async Task<List<Data.DataModels.Player>> GetPlayers()
+        public async Task<List<Player>> GetPlayers()
         {
             var players = await _playerRepository.GetAllPlayersWithTeams();
-            var returnPlayers = new List<Data.DataModels.Player>();
 
-            foreach(var player in players)
-            {
-                returnPlayers.Add(new Data.DataModels.Player{Name = player.Name, Salary = player.Salary.Value, Team = player.Team?.TeamName, League = GetPlayerLeague(player.Salary.Value).ToString()});
-            }
+            return players;
+        }
 
-            return returnPlayers;
+        public async Task<List<Player>> GetPlayersByLeague(string league)
+        {
+            var players = await _playerRepository.GetAllPlayersWithTeams();
+
+            return players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, _leagueMinSalaries) == Enum.Parse<PlayerLeague>(league)).ToList();
         }
 
         #region Private Methods
@@ -438,30 +442,6 @@ namespace UCLBackend.Service.Services
             player.CurrentMMR = currentMMR;
 
             return player;
-        }
-
-        private PlayerLeague GetPlayerLeague(double salary)
-        {
-            var ultraMinSalary = double.Parse(_settingRepository.GetSetting("League.Ultra.MinSalary"));
-            var eliteMinSalary = double.Parse(_settingRepository.GetSetting("League.Elite.MinSalary"));
-            var superiorMinSalary = double.Parse(_settingRepository.GetSetting("League.Superior.MinSalary"));
-
-            if (salary < ultraMinSalary)
-            {
-                return PlayerLeague.Origins;
-            }
-            else if (salary < eliteMinSalary)
-            {
-                return PlayerLeague.Ultra;
-            }
-            else if (salary < superiorMinSalary)
-            {
-                return PlayerLeague.Elite;
-            }
-            else
-            {
-                return PlayerLeague.Superior;
-            }
         }
 
         private PlayerFranchise GetPlayerFranchise(Team team)
@@ -546,7 +526,7 @@ namespace UCLBackend.Service.Services
 
             foreach (var player in players)
             {
-                var league = GetPlayerLeague(player.Salary.Value);
+                var league = PlayerHelpers.GetPlayerLeague(player.Salary.Value, _leagueMinSalaries);
                 playerDict[league].Add(player);
             }
 

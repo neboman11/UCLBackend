@@ -212,15 +212,22 @@ namespace UCLBackend.Service.Data.Helpers
             {
                 var responseMessage = await response.Content.ReadAsStringAsync();
 
-                var responseObj = JObject.Parse(responseMessage);
+                try
+                {
+                    var responseObj = JObject.Parse(responseMessage);
 
-                if(string.IsNullOrEmpty(responseObj["errorMessage"]?.ToString()))
-                {
-                    throw new HttpRequestException($"{host} gave response: {response.ReasonPhrase} - {responseMessage}");
+                    if(string.IsNullOrEmpty(responseObj["errorMessage"]?.ToString()))
+                    {
+                        throw new HttpRequestException($"{host} gave response: {response.ReasonPhrase} - {responseMessage}");
+                    }
+                    else
+                    {
+                        throw new UCLException(responseObj["errorMessage"].ToString());
+                    }
                 }
-                else
+                catch (JsonReaderException)
                 {
-                    throw new UCLException(responseObj["errorMessage"].ToString());
+                    throw new UCLException($"Failed reading response from {host}");
                 }
             }
         }

@@ -49,6 +49,11 @@ namespace UCLBackend.Service
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "UCLBackend.Service", Version = "v1" });
             });
 
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+
             #region Services
             services.AddSingleton<IRedisService, RedisService>();
 

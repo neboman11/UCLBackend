@@ -12,6 +12,7 @@ using UCLBackend.Service.DataAccess.Interfaces;
 using System.Net;
 using System.Threading;
 using UCLBackend.Service.Data.Helpers;
+using UCLBackend.Service.Data.DataModels;
 
 namespace UCLBackend.Service.DataAccess.Repositories
 {
