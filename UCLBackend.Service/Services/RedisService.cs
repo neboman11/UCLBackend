@@ -22,7 +22,12 @@ namespace UCLBackend.Service.Services
         public async Task StoreValue(string key, string value)
         {
             await _database.StringSetAsync(key, value);
-            await _database.KeyExpireAsync(key, TimeSpan.FromMinutes(60));
+        }
+
+        public async Task StoreValueWithExpiry(string key, string value, TimeSpan expiry)
+        {
+            await _database.StringSetAsync(key, value);
+            await _database.KeyExpireAsync(key, expiry);
         }
 
         public async Task<string> RetrieveValue(string key)

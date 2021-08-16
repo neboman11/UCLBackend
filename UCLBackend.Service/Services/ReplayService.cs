@@ -40,7 +40,7 @@ namespace UCLBackend.Service.Services
                 throw new UCLException("An upload has already been started for this user.");
             }
 
-            await _redisService.StoreValue($"upload_{userId}", $"replay_{userId}");
+            await _redisService.StoreValueWithExpiry($"upload_{userId}", $"replay_{userId}", TimeSpan.FromMinutes(60));
         }
 
         public async Task QueueReplay(ulong userId, string replayFileUrl)
@@ -54,11 +54,11 @@ namespace UCLBackend.Service.Services
 
             if (urls == null)
             {
-                await _redisService.StoreValue($"replay_{userId}", replayFileUrl);
+                await _redisService.StoreValueWithExpiry($"replay_{userId}", replayFileUrl, TimeSpan.FromMinutes(60));
             }
             else
             {
-                await _redisService.StoreValue($"replay_{userId}", urls + "," + replayFileUrl);
+                await _redisService.StoreValueWithExpiry($"replay_{userId}", urls + "," + replayFileUrl, TimeSpan.FromMinutes(60));
             }
         }
 

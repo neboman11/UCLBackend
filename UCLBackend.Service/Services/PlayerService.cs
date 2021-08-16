@@ -318,6 +318,7 @@ namespace UCLBackend.Service.Services
 
                 var message = await _discordService.SendEmbed(_freeAgentRosterChannelId, new Embed() { Title = $"{league}: Free Agents", Description = discordMessage.ToString() });
                 await _redisService.StoreValue(redisKey, message.Id.ToString());
+                _logger.LogInformation($"Sent {league} free agent list");
             }
         }
 
@@ -357,6 +358,7 @@ namespace UCLBackend.Service.Services
 
                     var message = await _discordService.SendEmbed(_leagueChannelIds[league], new Embed() { Title = $"{league}: {team.TeamName}", Description = discordMessage.ToString() });
                     await _redisService.StoreValue(redisKey, message.Id.ToString());
+                    _logger.LogInformation($"Sent {league} {team.TeamName} roster");
                 }
             }
         }
