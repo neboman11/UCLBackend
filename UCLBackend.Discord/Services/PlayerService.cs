@@ -3,8 +3,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using UCLBackend.Service.Data.Requests;
 using UCLBackend.Discord.Interfaces.Services;
+using UCLBackend.Service.Data.Requests;
 using UCLBackend.Service.Data.Responses;
 using UCLBackend.Service.Data.Helpers;
 
@@ -88,6 +88,57 @@ namespace UCLBackend.Discord.Services
             {
                 IssuerDiscordID = issuerDiscordID,
                 DiscordID = discordID
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PutAsync(uri, null, content);
+        }
+
+        public async Task AddAltAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink)
+        {
+            Uri uri = new Uri($"{_backendUrl}/Player/AltAccount");
+
+            // Set the request content
+            var body = new AccountRequest
+            {
+                IssuerDiscordID = issuerDiscordID,
+                DiscordID = discordID,
+                RLTrackerLink = rlTrackerLink
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PostAsync(uri, null, content);
+        }
+
+        public async Task ChangeMainAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink)
+        {
+            Uri uri = new Uri($"{_backendUrl}/Player/MainAccount");
+
+            // Set the request content
+            var body = new AccountRequest
+            {
+                IssuerDiscordID = issuerDiscordID,
+                DiscordID = discordID,
+                RLTrackerLink = rlTrackerLink
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
+
+            await SendWebRequest.PutAsync(uri, null, content);
+        }
+
+        public async Task ChangePlayerName(ulong issuerDiscordID, ulong discordID, string newName)
+        {
+            Uri uri = new Uri($"{_backendUrl}/Player/PlayerName");
+
+            // Set the request content
+            var body = new ChangePlayerNameRequest
+            {
+                IssuerDiscordID = issuerDiscordID,
+                DiscordID = discordID,
+                NewName = newName
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");

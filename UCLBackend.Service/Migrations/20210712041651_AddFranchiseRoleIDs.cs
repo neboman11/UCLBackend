@@ -14,7 +14,7 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.Atlantics.RoleId", "860638221892976655" }
+                values: new object[] { "Franchise.CMM.RoleId", "860638221892976655" }
             );
             migrationBuilder.InsertData(
                 table: "Settings",
@@ -83,7 +83,7 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.DeleteData(
                 table: "Settings",
                 keyColumn: "Key",
-                keyValue: "Franchise.Atlantics.RoleId"
+                keyValue: "Franchise.CMM.RoleId"
             );
             migrationBuilder.DeleteData(
                 table: "Settings",

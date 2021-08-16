@@ -287,6 +287,14 @@ namespace UCLBackend.Services.Services
             await SendWebRequest.DeleteAsync(uri, $"Bot {_discordToken}");
         }
 
+        // Currently this is harcoded to pull a max of 500 members
+        public async Task<List<Member>> GetServerMembers()
+        {
+            Uri uri = new Uri($"{_discordUrl}/guilds/{_discordGuildId}/members?limit=500");
+
+            return await SendWebRequest.GetAsync<List<Member>>(uri, $"Bot {_discordToken}");
+        }
+
         #region Private Methods
         private async Task ChangeUserNickname(ulong discordId, string nickname)
         {

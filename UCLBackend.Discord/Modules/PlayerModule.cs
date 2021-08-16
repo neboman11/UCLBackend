@@ -275,5 +275,98 @@ namespace UCLBackend.Discord.Modules
                 await Context.Channel.SendMessageAsync(e.Message);
             }
         }
+
+        [Command("addaltaccount")]
+        [Summary("Adds an alt account to the given player")]
+        public async Task AddAltAccount(ulong userId, string rlTrackerLink)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.AddAltAccount(Context.Message.Author.Id, userId, rlTrackerLink);
+                await Context.Channel.SendMessageAsync($"Alt account added to {userId}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while adding alt account to player {userId}.");
+                await Context.Channel.SendMessageAsync(e.Message);
+            }
+        }
+
+        [Command("changemainaccount")]
+        [Summary("Changes the main account for the given player")]
+        public async Task ChangeMainAccount(ulong userId, string rlTrackerLink)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.ChangeMainAccount(Context.Message.Author.Id, userId, rlTrackerLink);
+                await Context.Channel.SendMessageAsync($"Main account changed to {userId}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while changing main account for player {userId}.");
+                await Context.Channel.SendMessageAsync(e.Message);
+            }
+        }
+
+        [Command("changeplayername")]
+        [Summary("Changes the name for the given player")]
+        public async Task ChangePlayerName(ulong userId, string newName)
+        {
+            try
+            {
+                var userRoles = Context.Guild.GetUser(Context.Message.Author.Id)?.Roles;
+
+                if (userRoles == null)
+                {
+                    throw new Exception($"Unable to fetch roles for {Context.Message.Author.Username}");
+                }
+
+                // Allowed roles are Owner, Directors, and League Operators
+                var allowedRoles = _roleIds.Where(x => _directorRoles.Contains(x.Key) || _leagueOperatorRoles.Contains(x.Key) || x.Key == "OWNER_ROLEID").Select(x => x.Value).ToList();
+                if (!userRoles.ToList().Any(x => allowedRoles.Contains(x.Id)))
+                {
+                    await Context.Channel.SendMessageAsync("You do not have permission to perform this command.");
+                    return;
+                }
+
+                await _playerService.ChangePlayerName(Context.Message.Author.Id, userId, newName);
+                await Context.Channel.SendMessageAsync($"Player name changed for {userId}");
+            }
+            catch (Exception e)
+            {
+                _logger.Log(LogLevel.Error, e, $"An error occurred while changing player name for {userId}.");
+                await Context.Channel.SendMessageAsync(e.Message);
+            }
+        }
     }
 }

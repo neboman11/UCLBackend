@@ -12,6 +12,7 @@ namespace UCLBackend.Service.DataAccess.Models
         public int Saves { get; set; }
         public int Shots { get; set; }
         public int Score { get; set; }
+        public int PlayerID { get; set; }
         public Player Player { get; set; }
     }
 }

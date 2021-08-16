@@ -69,6 +69,11 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return (doublesMMRs, triplesMMRs);
         }
 
+        public List<Player> GetAllPlayers()
+        {
+            return _context.Players.ToList();
+        }
+
         public List<Player> GetAllPlayersWithAccounts()
         {
             return _context.Players.Include(p => p.Accounts).ToList();
@@ -79,7 +84,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
             return await _context.Players.Include(p => p.Team).ToListAsync();
         }
 
-        public Player GetPlayer(string playerID)
+        public Player GetPlayer(int playerID)
         {
             return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.PlayerID == playerID);
         }
@@ -98,6 +103,11 @@ namespace UCLBackend.Service.DataAccess.Repositories
         public Player GetPlayerUsingDiscordID(ulong discordID)
         {
             return _context.Players.Include(p => p.Accounts).FirstOrDefault(x => x.DiscordID == discordID);
+        }
+
+        public Player GetPlayerUsingDiscordIDWithTeam(ulong discordID)
+        {
+            return _context.Players.Include(p => p.Accounts).Include(p => p.Team).FirstOrDefault(x => x.DiscordID == discordID);
         }
 
         public List<Player> GetFreeAgents()

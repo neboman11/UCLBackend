@@ -10,5 +10,8 @@ namespace UCLBackend.Discord.Interfaces.Services
         Task ReleasePlayer(ulong issuerDiscordID, ulong discordID);
         Task<PlayerInfoResponse> GetPlayerInfo(ulong discordID);
         Task PlayerRankout(ulong issuerDiscordID, ulong discordID);
+        Task AddAltAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink);
+        Task ChangeMainAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink);
+        Task ChangePlayerName(ulong issuerDiscordID, ulong discordID, string newName);
     }
 }

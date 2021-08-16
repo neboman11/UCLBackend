@@ -18,5 +18,9 @@ namespace UCLBackend.Service.Services.Interfaces
         Task Roster();
         Task<List<Player>> GetPlayers();
         Task<List<Player>> GetPlayersByLeague(string league);
+        Task AddAltAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink);
+        Task ChangeMainAccount(ulong issuerDiscordID, ulong discordID, string rlTrackerLink);
+        Task ChangePlayerName(ulong issuerDiscordID, ulong discordID, string newName);
+        Task RemoveMissingServerPlayers();
     }
 }

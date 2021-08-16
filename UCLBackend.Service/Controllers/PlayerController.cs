@@ -126,11 +126,75 @@ namespace UCLBackend.Service.Controllers
             try
             {
                 var playerInfo = _playerService.GetPlayerInfo(id);
-                return new OkObjectResult(playerInfo);
+                return Ok(playerInfo);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting player info");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpPost]
+        [Route("AltAccount")]
+        public async Task<IActionResult> AddAltAccount([FromBody] AccountRequest request)
+        {
+            try
+            {
+                await _playerService.AddAltAccount(request.IssuerDiscordID, request.DiscordID, request.RLTrackerLink);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error creating alt account");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpPut]
+        [Route("MainAccount")]
+        public async Task<IActionResult> ChangeMainAccount([FromBody] AccountRequest request)
+        {
+            try
+            {
+                await _playerService.ChangeMainAccount(request.IssuerDiscordID, request.DiscordID, request.RLTrackerLink);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error changing main account");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpPut]
+        [Route("PlayerName")]
+        public async Task<IActionResult> ChangePlayerName([FromBody] ChangePlayerNameRequest request)
+        {
+            try
+            {
+                await _playerService.ChangePlayerName(request.IssuerDiscordID, request.DiscordID, request.NewName);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error changing player name");
+                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+            }
+        }
+
+        [HttpDelete]
+        [Route("MissingServerPlayers")]
+        public async Task<IActionResult> RemoveMissingServerPlayers()
+        {
+            try
+            {
+                await _playerService.RemoveMissingServerPlayers();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error removing missing server players");
                 return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
             }
         }
