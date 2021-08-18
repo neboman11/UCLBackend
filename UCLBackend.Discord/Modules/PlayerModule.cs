@@ -223,7 +223,7 @@ namespace UCLBackend.Discord.Modules
             }
             catch (Exception e)
             {
-                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {Context.Message.Author.Username}.");
+                _logger.Log(LogLevel.Error, e, $"An error occurred while getting player info for {user.Username}.");
                 await Context.Channel.SendMessageAsync(e.Message);
             }
         }
@@ -236,7 +236,7 @@ namespace UCLBackend.Discord.Modules
             {
                 var player = discordID;
                 var info = await _playerService.GetPlayerInfo(player);
-                await Context.Channel.SendMessageAsync($"User: {Context.Guild.GetUser(discordID)?.Username ?? discordID.ToString()}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
+                await Context.Channel.SendMessageAsync($"User: {info.Name}\nSalary: {info.Salary}\nPeakMMR: {info.PeakMMR}\nCurrentMMR: {info.CurrentMMR}");
             }
             catch (Exception e)
             {
