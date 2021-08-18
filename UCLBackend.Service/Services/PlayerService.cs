@@ -288,7 +288,8 @@ namespace UCLBackend.Service.Services
             {
                 Salary = player.Salary,
                 PeakMMR = player.PeakMMR,
-                CurrentMMR = player.CurrentMMR
+                CurrentMMR = player.CurrentMMR,
+                Name = player.Name
             };
         }
 
