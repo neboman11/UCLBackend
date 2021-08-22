@@ -336,7 +336,14 @@ namespace UCLBackend.Service.Services
                     string redisKey = $"{league}.{team.TeamName}.MessageId";
                     if (ulong.TryParse(await _redisService.RetrieveValue(redisKey), out oldMessageId))
                     {
-                        await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
+                        try
+                        {
+                            await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Failed to delete message {oldMessageId}");
+                        }
                     }
 
                     var discordMessage = new StringBuilder();
