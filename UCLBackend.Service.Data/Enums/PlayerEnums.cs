@@ -14,6 +14,7 @@ namespace UCLBackend.Service.Data.Enums
         CMM,
         Bison,
         Cobras,
+        Eagles,
         Gators,
         Knights,
         Lightning,

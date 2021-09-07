@@ -471,7 +471,7 @@ namespace UCLBackend.Service.Services
             foreach (var player in missingPlayers)
             {
                 _logger.LogInformation($"Removing player {player.Name} from database");
-                
+
                 await LogTransaction(1, $"Removed {player.Name} from the database");
             }
         }
@@ -546,7 +546,6 @@ namespace UCLBackend.Service.Services
 
         private async Task<(List<(int, DateTime)>, List<(int, DateTime)>)> GetMMRHistory(string platform, string accountName)
         {
-            
             var playerID = await _playerRepository.RemoteGetPlayerID(platform, accountName);
 
             if (string.IsNullOrEmpty(playerID))
@@ -574,6 +573,8 @@ namespace UCLBackend.Service.Services
                     return PlayerFranchise.Bison;
                 case "Cobras":
                     return PlayerFranchise.Cobras;
+                case "Eagles":
+                    return PlayerFranchise.Eagles;
                 case "Gators":
                     return PlayerFranchise.Gators;
                 case "Knights":
