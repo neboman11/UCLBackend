@@ -330,7 +330,7 @@ namespace UCLBackend.Service.Services
                     {
                         try
                         {
-                            await _discordService.DeleteMessage(_freeAgentRosterChannelId, oldMessageId);
+                            await _discordService.DeleteMessage(_leagueChannelIds[league], oldMessageId);
                         }
                         catch (Exception ex)
                         {
