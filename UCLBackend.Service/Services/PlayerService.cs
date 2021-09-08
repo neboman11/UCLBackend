@@ -48,15 +48,33 @@ namespace UCLBackend.Service.Services
 
         public async Task AddPlayer(ulong issuerDiscordID, ulong discordID, string playerName, string rlTrackerLink, string[] altRLTrackerLinks)
         {
+            // Check to make sure the player doesn't already exist
+            if (_playerRepository.GetPlayerUsingDiscordID(discordID) != null)
+            {
+                throw new UCLException("Player is already in database");
+            }
+
             // Grab the platform and account name from the tracker url
             var accountParts = GetAccountParts(rlTrackerLink);
             var platform = accountParts.Item1;
             var accountName = accountParts.Item2;
 
             // TODO: Change to checking if given accounts are already in the database
-            if (_playerRepository.GetPlayerUsingDiscordID(discordID) != null)
+            if (_playerRepository.GetAccount(platform, accountName) != null)
             {
-                throw new UCLException("Player is already in database");
+                throw new UCLException($"Account {rlTrackerLink} is already registered to another player.");
+            }
+
+            foreach (var altRLTrackerLink in altRLTrackerLinks)
+            {
+                var altAccountParts = GetAccountParts(altRLTrackerLink);
+                var altPlatform = altAccountParts.Item1;
+                var altAccountName = altAccountParts.Item2;
+
+                if (_playerRepository.GetAccount(altPlatform, altAccountName) != null)
+                {
+                    throw new UCLException($"Account {altRLTrackerLink} is already registered to another player.");
+                }
             }
 
             Player player = new Player
@@ -463,6 +481,8 @@ namespace UCLBackend.Service.Services
             foreach (var player in missingPlayers)
             {
                 _logger.LogInformation($"Removing player {player.Name} from database");
+
+                _playerRepository.DeletePlayer(player);
 
                 await LogTransaction(1, $"Removed {player.Name} from the database");
             }

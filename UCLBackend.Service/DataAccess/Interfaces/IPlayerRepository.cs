@@ -22,5 +22,7 @@ namespace UCLBackend.Service.DataAccess.Interfaces
         Player GetPlayerUsingDiscordIDWithTeam(ulong discordID);
         List<Player> GetFreeAgents();
         List<Team> TeamsByLeague(string league);
+        void DeletePlayer(Player player);
+        Account GetAccount(string platform, string accountName);
     }
 }

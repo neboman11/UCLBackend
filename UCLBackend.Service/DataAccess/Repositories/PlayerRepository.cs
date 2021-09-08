@@ -42,7 +42,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
             Uri uri = new Uri($"https://api.tracker.gg/api/v2/rocket-league/standard/profile/{platform}/{username}");
 
             var player = await SendWebRequest.GetAsync<GetPlayerIDResponse>(uri, null);
-            
+
             return player.Data.MetaData.PlayerID;
         }
 
@@ -51,7 +51,7 @@ namespace UCLBackend.Service.DataAccess.Repositories
             Uri uri = new Uri($"https://api.tracker.gg/api/v1/rocket-league/player-history/mmr/{playerID}");
 
             var player = await SendWebRequest.GetAsync<GetPlayerMMRsResponse>(uri, null);
-            
+
             var doublesMMRs = new List<(int, DateTime)>();
             doublesMMRs.Add((0, DateTime.MinValue));
             if (player.Data.ContainsKey(11))
@@ -118,6 +118,17 @@ namespace UCLBackend.Service.DataAccess.Repositories
         public List<Team> TeamsByLeague(string league)
         {
             return _context.Roster.Include(x => x.Players).Where(x => x.League == league).ToList();
+        }
+
+        public void DeletePlayer(Player player)
+        {
+            _context.Players.Remove(player);
+            _context.SaveChanges();
+        }
+
+        public Account GetAccount(string platform, string accountName)
+        {
+            return _context.Accounts.FirstOrDefault(x => x.Platform == platform && x.AccountName == accountName);
         }
     }
 }
