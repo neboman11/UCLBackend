@@ -59,7 +59,7 @@ namespace UCLBackend.Service.Services
             var platform = accountParts.Item1;
             var accountName = accountParts.Item2;
 
-            // TODO: Change to checking if given accounts are already in the database
+            // Check if given accounts are already in the database
             if (_playerRepository.GetAccount(platform, accountName) != null)
             {
                 throw new UCLException($"Account {rlTrackerLink} is already registered to another player.");
