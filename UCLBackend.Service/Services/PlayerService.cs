@@ -54,10 +54,10 @@ namespace UCLBackend.Service.Services
             var accountName = accountParts.Item2;
 
             // TODO: Change to checking if given accounts are already in the database
-            // if (_playerRepository.GetPlayer(playerID) != null)
-            // {
-            //     throw new Exception("Player is already in database");
-            // }
+            if (_playerRepository.GetPlayerUsingDiscordID(discordID) != null)
+            {
+                throw new UCLException("Player is already in database");
+            }
 
             Player player = new Player
             {
@@ -565,6 +565,8 @@ namespace UCLBackend.Service.Services
                     return PlayerFranchise.Bison;
                 case "Cobras":
                     return PlayerFranchise.Cobras;
+                case "Cubs":
+                    return PlayerFranchise.Cubs;
                 case "Eagles":
                     return PlayerFranchise.Eagles;
                 case "Gators":
