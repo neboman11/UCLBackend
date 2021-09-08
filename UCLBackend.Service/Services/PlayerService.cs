@@ -76,16 +76,8 @@ namespace UCLBackend.Service.Services
             await _discordService.AddFranchiseRolesToUser(player.DiscordID, GetPlayerFranchise(null), PlayerHelpers.GetPlayerLeague(player.Salary, _leagueMinSalaries));
             await _discordService.SetFreeAgentNickname(player.DiscordID, player.Name);
 
-            // Remove the accounts from the player so they can be saved to the database
-            player.Accounts = null;
-
             // Save the player to the database last in case something goes wrong
             _playerRepository.AddPlayer(player);
-
-            foreach (var account in accounts)
-            {
-                _playerRepository.AddAccount(account);
-            }
 
             await LogTransaction(issuerDiscordID, $"Added player {player.Name}");
         }
