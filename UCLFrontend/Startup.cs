@@ -9,6 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UCLFrontend.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Discord.OAuth2;
 
 namespace UCLFrontend
 {
@@ -27,6 +31,27 @@ namespace UCLFrontend
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
+            //Configure authentication for the user
+            services.AddAuthentication(opt =>
+                {
+                    opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    opt.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    opt.DefaultChallengeScheme = DiscordDefaults.AuthenticationScheme;
+                })
+                .AddCookie()
+                .AddDiscord(x =>
+                {
+                    x.AppId = Configuration["Discord:AppId"];
+                    x.AppSecret = Configuration["Discord:AppSecret"];
+                    x.Scope.Add("guilds");
+
+                    //Required for accessing the oauth2 token in order to make requests on the user's behalf, ie. accessing the user's guild list
+                    x.SaveTokens = true;
+                });
+
+            services.AddHttpContextAccessor();
+
             services.AddScoped<PlayerService>();
         }
 
@@ -40,15 +65,20 @@ namespace UCLFrontend
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
+                endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

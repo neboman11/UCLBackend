@@ -35,7 +35,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error adding player");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -51,7 +51,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error updating all MMRs");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -67,7 +67,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error single MMR");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -83,7 +83,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error signing player");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -99,7 +99,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error releasing player");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -115,7 +115,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error rankout player");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -131,7 +131,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting player info");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -147,7 +147,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error creating alt account");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -163,7 +163,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error changing main account");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -179,7 +179,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error changing player name");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -195,14 +195,9 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error removing missing server players");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
-
-        // TODO: Create route to add alt accounts to a user
-        // TODO: Create route to modify main account of user
-        // TODO: Create route to change people's name
-        // TODO: Create route to remove players from the database who are not in the discord server
 
         [HttpGet]
         [Route("FreeAgentsList")]
@@ -216,7 +211,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting free agents list");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -232,7 +227,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting roster");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -248,7 +243,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting all players");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
 
@@ -264,7 +259,7 @@ namespace UCLBackend.Service.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting all players");
-                return BadRequest(new BaseResponse{HasError = true, ErrorMessage = e.Message});
+                return BadRequest(new BaseResponse { HasError = true, ErrorMessage = e.Message });
             }
         }
     }

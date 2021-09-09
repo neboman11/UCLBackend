@@ -1,4 +1,5 @@
 ﻿@page "/roster"
+@attribute [Authorize]
 
 @using UCLBackend.Service.Data.DataModels
 @using UCLBackend.Service.Data.Enums
@@ -16,16 +17,17 @@
 else
 {
     <div class="pb-2 row">
-        <div class="col-md-1">
-            <button class="btn" @onclick="RefreshPlayers">Refresh</button>
-        </div>
-        <div class="col-md-1">
-            <button class="btn" @onclick="HideFreeAgents"><i class="fas @(GetHideFreeAgentsStyle())"></i> Free Agents</button>
-        </div>
-        <div class="col-md-1">
-            <select class="form-control" @onchange="ShowOnlyGivenLeague">
-                <option value="All" selected>All</option>
-                @foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
+    <div class="col-md-1">
+        <button class="btn" @onclick="RefreshPlayers">Refresh</button>
+    </div>
+    <div class="col-md-1">
+        <button class="btn" @onclick="HideFreeAgents"><i class="fas @(GetHideFreeAgentsStyle())"></i> Free
+            Agents</button>
+    </div>
+    <div class="col-md-1">
+        <select class="form-control" @onchange="ShowOnlyGivenLeague">
+            <option value="All" selected>All</option>
+            @foreach (var league in Enum.GetValues(typeof(PlayerLeague)).Cast<PlayerLeague>())
                 {
                     <option value="@(league.ToString())">@(league.ToString())</option>
                 }
@@ -65,7 +67,7 @@ else
                             <td>@player.Name</td>
                             <td>@player.Salary</td>
                             <td>@player.Team?.TeamName</td>
-                            <td>@PlayerHelpers.GetPlayerLeague(player.Salary.Value, leagueMinSalaries)</td>
+                            <td>@PlayerHelpers.GetPlayerLeague(player.Salary, leagueMinSalaries)</td>
                         </tr>
                     }
                 }
@@ -75,7 +77,7 @@ else
                         <td>@player.Name</td>
                         <td>@player.Salary</td>
                         <td>@player.Team?.TeamName</td>
-                        <td>@PlayerHelpers.GetPlayerLeague(player.Salary.Value, leagueMinSalaries)</td>
+                        <td>@PlayerHelpers.GetPlayerLeague(player.Salary, leagueMinSalaries)</td>
                     </tr>
                 }
             }
@@ -108,7 +110,7 @@ else
     private void ReloadTablePlayers()
     {
         tablePlayers = players;
-        ShowOnlyGivenLeague(new ChangeEventArgs{ Value = CurrentLeagueFilter });
+        ShowOnlyGivenLeague(new ChangeEventArgs { Value = CurrentLeagueFilter });
     }
 
     private void HideFreeAgents()
@@ -146,26 +148,30 @@ else
 
     private void ShowOnlyGivenLeague(ChangeEventArgs args)
     {
-        switch(args.Value.ToString())
+        switch (args.Value.ToString())
         {
             case "All":
                 tablePlayers = players;
                 CurrentLeagueFilter = "All";
                 break;
             case "Origins":
-                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Origins).ToList();
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries) ==
+                PlayerLeague.Origins).ToList();
                 CurrentLeagueFilter = "Origins";
                 break;
             case "Ultra":
-                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Ultra).ToList();
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries) ==
+                PlayerLeague.Ultra).ToList();
                 CurrentLeagueFilter = "Ultra";
                 break;
             case "Elite":
-                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Elite).ToList();
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries) ==
+                PlayerLeague.Elite).ToList();
                 CurrentLeagueFilter = "Elite";
                 break;
             case "Superior":
-                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries) == PlayerLeague.Superior).ToList();
+                tablePlayers = players.Where(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries) ==
+                PlayerLeague.Superior).ToList();
                 CurrentLeagueFilter = "Superior";
                 break;
             default:
@@ -196,7 +202,7 @@ else
                     IsSortedAscending = true;
                     break;
                 case Enums.PlayerSortingColumn.League:
-                    players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                    players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries)).ToList();
                     CurrentSortColumn = column;
                     IsSortedAscending = true;
                     break;
@@ -224,7 +230,7 @@ else
                         IsSortedAscending = false;
                         break;
                     case Enums.PlayerSortingColumn.League:
-                        players = players.OrderByDescending(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                        players = players.OrderByDescending(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries)).ToList();
                         CurrentSortColumn = column;
                         IsSortedAscending = false;
                         break;
@@ -250,7 +256,7 @@ else
                         IsSortedAscending = true;
                         break;
                     case Enums.PlayerSortingColumn.League:
-                        players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary.Value, leagueMinSalaries)).ToList();
+                        players = players.OrderBy(x => PlayerHelpers.GetPlayerLeague(x.Salary, leagueMinSalaries)).ToList();
                         CurrentSortColumn = column;
                         IsSortedAscending = true;
                         break;

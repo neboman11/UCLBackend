@@ -454,7 +454,7 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 
 # appsettings (contains sensitive information)
-UCLBackend.Service/appsettings.Development.json
+appsettings.Development.json
 appsettings.Production.json
 
 # Environment variables file
@@ -462,3 +462,4 @@ appsettings.Production.json
 
 # Frontend libraries
 UCLFrontend/wwwroot/lib
+UCLFrontend/appsettings.Development.json
