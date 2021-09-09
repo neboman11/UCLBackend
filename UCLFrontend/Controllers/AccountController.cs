@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 
-namespace BlazorLoginDiscord.Data
+namespace UCLFrontend.Controllers
 {
     [Route("[controller]/[action]")]
     public class AccountController : ControllerBase
