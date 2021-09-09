@@ -65,15 +65,18 @@ namespace UCLBackend.Service.Services
                 throw new UCLException($"Account {rlTrackerLink} is already registered to another player.");
             }
 
-            foreach (var altRLTrackerLink in altRLTrackerLinks)
+            if (altRLTrackerLinks != null)
             {
-                var altAccountParts = GetAccountParts(altRLTrackerLink);
-                var altPlatform = altAccountParts.Item1;
-                var altAccountName = altAccountParts.Item2;
-
-                if (_playerRepository.GetAccount(altPlatform, altAccountName) != null)
+                foreach (var altRLTrackerLink in altRLTrackerLinks)
                 {
-                    throw new UCLException($"Account {altRLTrackerLink} is already registered to another player.");
+                    var altAccountParts = GetAccountParts(altRLTrackerLink);
+                    var altPlatform = altAccountParts.Item1;
+                    var altAccountName = altAccountParts.Item2;
+
+                    if (_playerRepository.GetAccount(altPlatform, altAccountName) != null)
+                    {
+                        throw new UCLException($"Account {altRLTrackerLink} is already registered to another player.");
+                    }
                 }
             }
 
