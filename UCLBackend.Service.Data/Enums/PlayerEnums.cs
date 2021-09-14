@@ -22,7 +22,6 @@ namespace UCLBackend.Service.Data.Enums
         Raptors,
         Samurai,
         Spartans,
-        XII_Boost,
         Vikings,
         Free_Agents
     }

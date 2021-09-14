@@ -59,11 +59,6 @@ namespace UCLBackend.Service.Migrations
             migrationBuilder.InsertData(
                 table: "Settings",
                 columns: new[] { "Key", "Value" },
-                values: new object[] { "Franchise.XII_Boost.RoleId", "864285434775732254" }
-            );
-            migrationBuilder.InsertData(
-                table: "Settings",
-                columns: new[] { "Key", "Value" },
                 values: new object[] { "Franchise.Vikings.RoleId", "860638221880000546" }
             );
             migrationBuilder.InsertData(
@@ -124,11 +119,6 @@ namespace UCLBackend.Service.Migrations
                 table: "Settings",
                 keyColumn: "Key",
                 keyValue: "Franchise.Spartans.RoleId"
-            );
-            migrationBuilder.DeleteData(
-                table: "Settings",
-                keyColumn: "Key",
-                keyValue: "Franchise.XII_Boost.RoleId"
             );
             migrationBuilder.DeleteData(
                 table: "Settings",

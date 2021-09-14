@@ -604,8 +604,6 @@ namespace UCLBackend.Service.Services
                     return PlayerFranchise.Samurai;
                 case "Spartans":
                     return PlayerFranchise.Spartans;
-                case "XII Boost":
-                    return PlayerFranchise.XII_Boost;
                 case "Vikings":
                     return PlayerFranchise.Vikings;
                 default:

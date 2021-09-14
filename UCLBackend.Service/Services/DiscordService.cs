@@ -126,9 +126,6 @@ namespace UCLBackend.Services.Services
                 case PlayerFranchise.Spartans:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Spartans.RoleId"));
                     break;
-                case PlayerFranchise.XII_Boost:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.XII_Boost.RoleId"));
-                    break;
                 case PlayerFranchise.Vikings:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Vikings.RoleId"));
                     break;
@@ -196,9 +193,6 @@ namespace UCLBackend.Services.Services
                     break;
                 case PlayerFranchise.Spartans:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Spartans.RoleId"));
-                    break;
-                case PlayerFranchise.XII_Boost:
-                    discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.XII_Boost.RoleId"));
                     break;
                 case PlayerFranchise.Vikings:
                     discordRoleId = ulong.Parse(_settingRepository.GetSetting("Franchise.Vikings.RoleId"));

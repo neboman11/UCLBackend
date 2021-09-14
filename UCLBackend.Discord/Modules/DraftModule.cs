@@ -26,7 +26,6 @@ namespace UCLBackend.Discord.Modules
             {"RAPTORS_ROLEID", PlayerFranchise.Raptors},
             {"SAMURAI_ROLEID", PlayerFranchise.Samurai},
             {"SPARTANS_ROLEID", PlayerFranchise.Spartans},
-            {"XII_BOOST_ROLEID", PlayerFranchise.XII_Boost},
             {"VIKINGS_ROLEID", PlayerFranchise.Vikings}
         };
 
@@ -50,7 +49,6 @@ namespace UCLBackend.Discord.Modules
             _roleIds.Add("RAPTORS_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("RAPTORS_ROLEID")));
             _roleIds.Add("SAMURAI_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("SAMURAI_ROLEID")));
             _roleIds.Add("SPARTANS_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("SPARTANS_ROLEID")));
-            _roleIds.Add("XII_BOOST_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("XII_BOOST_ROLEID")));
             _roleIds.Add("VIKINGS_ROLEID", ulong.Parse(Environment.GetEnvironmentVariable("VIKINGS_ROLEID")));
         }
 

@@ -14,51 +14,6 @@ namespace UCLBackend.Service.Services
     {
         private readonly ILogger<DraftService> _logger;
 
-        /*
-Origins draft order
-
-1st Bison
-2nd Gators
-3rd Samurai
-4th Astros
-5th Knights
-6th Vikings
-7th CMM
-8th Spartans
-
-
-Ultra draft order
-
-1st Cobras
-2nd XII Boost
-3rd CMM
-4th Lightning
-5th Samurai
-6th Spartans
-7th Gators
-8th Knights
-9th Raptors
-10th Vikings
-11th Bison
-12th Astros
-
-
-Elite draft order
-
-1st Knights
-2nd Cobras
-3rd Vikings
-4th Samurai
-5th Gators
-6th Spartans
-7th XII Boost
-8th Lightning
-9th Raptors
-10th CMM
-11th Bison
-12th Astros
-        */
-
         private Queue<PlayerFranchise> _draftOrder;
         const ulong _draftChannelId = 820892786064359445;
         private PlayerFranchise _currentFranchise;
@@ -413,10 +368,10 @@ Elite draft order
                     _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Bison, PlayerFranchise.Gators, PlayerFranchise.Samurai, PlayerFranchise.Astros, PlayerFranchise.Knights, PlayerFranchise.Vikings, PlayerFranchise.CMM, PlayerFranchise.Spartans });
                     break;
                 case PlayerLeague.Ultra:
-                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Cobras, PlayerFranchise.XII_Boost, PlayerFranchise.CMM, PlayerFranchise.Lightning, PlayerFranchise.Samurai, PlayerFranchise.Spartans, PlayerFranchise.Gators, PlayerFranchise.Bison, PlayerFranchise.Astros });
+                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Cobras, PlayerFranchise.CMM, PlayerFranchise.Lightning, PlayerFranchise.Samurai, PlayerFranchise.Spartans, PlayerFranchise.Gators, PlayerFranchise.Bison, PlayerFranchise.Astros });
                     break;
                 case PlayerLeague.Elite:
-                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Knights, PlayerFranchise.Cobras, PlayerFranchise.Vikings, PlayerFranchise.Samurai, PlayerFranchise.Gators, PlayerFranchise.Spartans, PlayerFranchise.XII_Boost, PlayerFranchise.Lightning, PlayerFranchise.CMM, PlayerFranchise.Bison, PlayerFranchise.Astros });
+                    _draftOrder = new Queue<PlayerFranchise>(new[] { PlayerFranchise.Knights, PlayerFranchise.Cobras, PlayerFranchise.Vikings, PlayerFranchise.Samurai, PlayerFranchise.Gators, PlayerFranchise.Spartans, PlayerFranchise.Lightning, PlayerFranchise.CMM, PlayerFranchise.Bison, PlayerFranchise.Astros });
                     break;
                 default:
                     throw new Exception();
